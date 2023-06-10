@@ -1,38 +1,11 @@
 on: push
 
 jobs:
-  macos-audio-performce-test:
-    runs-on: macos-latest
+  build-xcode-project:
+    strategy:
+      matrix:
+        project: [AudioPerformanceTest, AudioPluginHost, BinaryBuilder, NetworkGraphicsDemo, Projucer, UnitTestRunner]
+    runs-on: 'macos-latest'
     steps:
     - uses: actions/checkout@v3
-    - run: xcodebuild -project ./extras/AudioPerformanceTest/Builds/MacOSX/AudioPerformanceTest.xcodeproj -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-  macos-audio-plugin-host:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: xcodebuild -project ./extras/AudioPluginHost/Builds/MacOSX/AudioPluginHost.xcodeproj -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-  macos-binary-builder:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: xcodebuild -project ./extras/BinaryBuilder/Builds/MacOSX/BinaryBuilder.xcodeproj -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-  macos-network-graphics-demo:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: xcodebuild -project ./extras/NetworkGraphicsDemo/Builds/MacOSX/NetworkGraphicsDemo.xcodeproj -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-  macos-projucer:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: xcodebuild -project ./extras/Projucer/Builds/MacOSX/Projucer.xcodeproj -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-  macos-unit-test-runner:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-    - run: xcodebuild -project ./extras/UnitTestRunner/Builds/MacOSX/UnitTestRunner.xcodeproj -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
+    - run: xcodebuild -project ./extras/${{ matrix.project }}/Builds/MacOSX/${{ matrix.project }}.xcodeproj -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
