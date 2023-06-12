@@ -18,7 +18,7 @@ jobs:
           echo "macos=$(find . -name "*.xcodeproj" -type d | grep /MacOSX/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
           echo "ios=$(find . -name "*.xcodeproj" -type d | grep /iOS/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
           echo "linux=$(find . -name "LinuxMakefile" -type d | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "android=$(find . -name "build.gradle" -type f | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
+          echo "android=$(find . -name "gradlew" -type f | grep /Android/ | xargs dirname | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
           echo "vs2017=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2017/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
           echo "vs2019=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2019/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
           echo "vs2022=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2022/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
@@ -33,8 +33,7 @@ jobs:
     runs-on: 'macos-latest'
     steps:
       - uses: actions/checkout@v3
-      - name: Build
-        run: |
+      - run: |
             xcodebuild -project ${{ matrix.project }} \
                        -configuration Release \
                        GCC_TREAT_WARNINGS_AS_ERRORS=YES
@@ -49,15 +48,38 @@ jobs:
     steps:
       - name: 'Install Linux Dependencies'
         run: |
-          sudo apt install libasound2-dev libjack-jackd2-dev \
-          ladspa-sdk \
-          libcurl4-openssl-dev  \
-          libfreetype6-dev \
-          libx11-dev libxcomposite-dev libxcursor-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev \
-          libwebkit2gtk-4.0-dev \
-          libglu1-mesa-dev mesa-common-dev
+          sudo apt install \
+            libasound2-dev \
+            libjack-jackd2-dev \
+            ladspa-sdk \
+            libcurl4-openssl-dev  \
+            libfreetype6-dev \
+            libx11-dev \
+            libxcomposite-dev \
+            libxcursor-dev \
+            libxcursor-dev \
+            libxext-dev \
+            libxinerama-dev \
+            libxrandr-dev \
+            libxrender-dev \
+            libwebkit2gtk-4.0-dev \
+            libglu1-mesa-dev \
+            mesa-common-dev
       - uses: actions/checkout@v3
       - run: make -j$(nproc) CONFIG=Release V=1 CXXFLAGS="-Werror" -C ${{ matrix.project }}
+
+  build-android-projects:
+    needs: find-projects
+    strategy:
+      matrix:
+        project: ${{ fromJson(needs.find-projects.outputs.android-projects) }}
+    name: ${{ matrix.project }}
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v3
+      - run: |
+          cd ${{ matrix.project }}
+          ./gradlew --parallel --max-workers=$(nproc) assembleRelease
 
   # build-ios-projects:
   #   needs: find-projects
