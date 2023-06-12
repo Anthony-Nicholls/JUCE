@@ -57,7 +57,7 @@ jobs:
           libwebkit2gtk-4.0-dev \
           libglu1-mesa-dev mesa-common-dev
       - uses: actions/checkout@v3
-      - run: make -j8 CONFIG=Release V=1 CXXFLAGS="-Werror" -C ${{ matrix.project }}
+      - run: make -j$(nproc) CONFIG=Release V=1 CXXFLAGS="-Werror" -C ${{ matrix.project }}
 
   # build-ios-projects:
   #   needs: find-projects
