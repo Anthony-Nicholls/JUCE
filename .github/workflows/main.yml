@@ -1,41 +1,29 @@
 on: push
 
 jobs:
-  find-projects:
-    runs-on: ubuntu-latest
-    outputs:
-      macos-projects: ${{ steps.projects.outputs.macos }}
-      ios-projects: ${{ steps.projects.outputs.ios }}
-      linux-projects: ${{ steps.projects.outputs.linux }}
-      android-projects: ${{ steps.projects.outputs.android }}
-      vs2017-projects: ${{ steps.projects.outputs.vs2017 }}
-      vs2019-projects: ${{ steps.projects.outputs.vs2019 }}
-      vs2022-projects: ${{ steps.projects.outputs.vs2022 }}
-    steps:
-      - uses: actions/checkout@v3
-      - id: projects
-        run: |
-          echo "macos=$(find . -name "*.xcodeproj" -type d | grep /MacOSX/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "ios=$(find . -name "*.xcodeproj" -type d | grep /iOS/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "linux=$(find . -name "LinuxMakefile" -type d | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "android=$(find . -name "gradlew" -type f | grep /Android/ | xargs dirname | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "vs2017=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2017/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "vs2019=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2019/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "vs2022=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2022/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-
-  build-macos-projects:
-    if: false
-    needs: find-projects
-    strategy:
-      matrix:
-        project: ${{ fromJson(needs.find-projects.outputs.macos-projects) }}
-    name: ${{ matrix.project }}
+  build-unit-test-runner-macos:
     runs-on: 'macos-latest'
     steps:
-      - uses: actions/checkout@v3
-      - uses: ./.github/actions/build-xcode-project
-        with:
-          project: ${{ matrix.project }}
+    - uses: actions/checkout@v3
+    - uses: ./.github/actions/build-project
+      with:
+        name: UnitTestRunner
+        dir: extras
+        target: macos
+
+  # build-macos-projects:
+  #   if: false
+  #   needs: find-projects
+  #   strategy:
+  #     matrix:
+  #       project: ${{ fromJson(needs.find-projects.outputs.macos-projects) }}
+  #   name: ${{ matrix.project }}
+  #   runs-on: 'macos-latest'
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #     - uses: ./.github/actions/build-xcode-project
+  #       with:
+  #         project: ${{ matrix.project }}
 
   # build-linux-projects:
   #   needs: find-projects

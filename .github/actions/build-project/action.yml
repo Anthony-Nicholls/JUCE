@@ -1,0 +1,29 @@
+name: 'Build Project'
+inputs:
+  name:
+    required: true
+  dir:
+    required: true
+    type: choice
+    options:
+    - examples
+    - extras
+  target:
+    required: true
+    type: choice
+    options:
+    - macos
+    - ios
+    - windows
+    - android
+    - linux
+runs:
+  using: "composite"
+  steps:
+  - name: Build ${{ inputs.name }} for ${{ inputs.target }}
+    if: ${{ inputs.target }} == 'macos'
+    shell: bash
+    run: |
+      xcodebuild -project ./${{ inputs.dir }}/${{ inputs.name }}/Builds/MacOSX/${{ inputs.name }}.xcodeproj \
+                 -configuration Release \
+                 GCC_TREAT_WARNINGS_AS_ERRORS=YES
