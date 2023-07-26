@@ -1,4 +1,4 @@
-name: 'Install Linux Dependencies'
+name: Install Linux Dependencies
 runs:
   using: composite
   steps:
