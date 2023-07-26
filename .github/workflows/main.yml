@@ -9,7 +9,7 @@ jobs:
           {dir: extras, name: AudioPluginHost},
           {dir: extras, name: UnitTestRunner},
         ]
-    name: ${{ matrix.project.name }} (macOS)
+    name: Build ${{ matrix.project.name }} (macOS)
     runs-on: 'macos-latest'
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/MacOSX/${{ matrix.project.name }}.xcodeproj
@@ -35,7 +35,7 @@ jobs:
           {dir: extras, name: AudioPluginHost},
           {dir: extras, name: UnitTestRunner},
         ]
-    name: ${{ matrix.project.name }} (Linux)
+    name: Build ${{ matrix.project.name }} (Linux)
     runs-on: 'ubuntu-latest'
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
