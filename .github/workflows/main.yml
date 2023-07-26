@@ -1,28 +1,6 @@
 on: push
 
 jobs:
-  find-projects:
-    runs-on: ubuntu-latest
-    outputs:
-      macos-projects: ${{ steps.projects.outputs.macos }}
-      ios-projects: ${{ steps.projects.outputs.ios }}
-      linux-projects: ${{ steps.projects.outputs.linux }}
-      android-projects: ${{ steps.projects.outputs.android }}
-      vs2017-projects: ${{ steps.projects.outputs.vs2017 }}
-      vs2019-projects: ${{ steps.projects.outputs.vs2019 }}
-      vs2022-projects: ${{ steps.projects.outputs.vs2022 }}
-    steps:
-      - uses: actions/checkout@v3
-      - id: projects
-        run: |
-          echo "macos=$(find . -name "*.xcodeproj" -type d | grep /MacOSX/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "ios=$(find . -name "*.xcodeproj" -type d | grep /iOS/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "linux=$(find . -name "LinuxMakefile" -type d | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "android=$(find . -name "gradlew" -type f | grep /Android/ | xargs dirname | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "vs2017=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2017/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "vs2019=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2019/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-          echo "vs2022=$(find . -name "*.vcxproj" -type f | grep /VisualStudio2022/ | jq -R -s -c 'split("\n")[:-1]')" >> $GITHUB_OUTPUT
-
   # build-macos-projects:
   #   if: false
   #   needs: find-projects
@@ -39,19 +17,29 @@ jobs:
   #                      GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
   build-linux-projects:
-    needs: find-projects
     strategy:
       matrix:
-        project: ${{ fromJson(needs.find-projects.outputs.linux-projects) }}
-    name: ${{ matrix.project }}
+        project: [
+          {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: UnitTestRunner},
+        ]
+    name: ${{ matrix.project.name }} (Linux)
     runs-on: 'ubuntu-latest'
+    env:
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Install dependencies
         uses: ./.github/actions/install-linux-dependencies
       - name: Build project
-        run: make -j$(nproc) CONFIG=Release V=1 CXXFLAGS="-Werror" -C ${{ matrix.project }}
+        run: make -j$(nproc) CONFIG=Release V=1 CXXFLAGS="-Werror" -C ${PROJECT_PATH}
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.project.name }}-Linux
+          path: ${PROJECT_PATH}/build/intermediate/Release
 
   # build-android-projects:
   #   needs: find-projects
