@@ -27,6 +27,41 @@ jobs:
           name: ${{ matrix.project.name }}-macOS
           path: ${PROJECT_PATH}/build/Release
 
+  build-ios-projects:
+    strategy:
+      matrix:
+        project: [
+          {dir: examples, name: DemoRunner}
+        ]
+    name: Build ${{ matrix.project.name }} (iOS)
+    runs-on: 'macos-latest'
+    env:
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/iOS/${{ matrix.project.name }}.xcodeproj
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install certificate
+        uses: ./.github/actions/install-apple-signing-cert
+        with:
+          certificate-base64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
+          certificate-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
+      - name: Install provisioning profile
+        uses: ./.github/actions/install-ios-provisioning-profile
+        with:
+          profile-base64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+      - name: Build project
+        run: |
+          xcodebuild -project ${PROJECT_PATH} \
+                     -configuration Release \
+                     -allowProvisioningUpdates \
+                     GCC_TREAT_WARNINGS_AS_ERRORS=YES \
+                     DEVELOPMENT_TEAM="${{ secrets.APPLE_DEVELOPMENT_TEAM_ID }}"
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.project.name }}-iOS
+          path: ${PROJECT_PATH}/build/Release
+
   build-linux-projects:
     strategy:
       matrix:
@@ -64,48 +99,6 @@ jobs:
   #     - run: |
   #         cd ${{ matrix.project }}
   #         ./gradlew --parallel --max-workers=$(nproc) assembleRelease
-
-  # build-ios-projects:
-  #   needs: find-projects
-  #   strategy:
-  #     matrix:
-  #       project: ${{ fromJson(needs.find-projects.outputs.ios-projects) }}
-  #   runs-on: 'macos-latest'
-  #   name: ${{ matrix.project }}
-  #   steps:
-  #     - name: Install a signing certificate
-  #       env:
-  #         CERTIFICATE_BASE64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
-  #         CERTIFICATE_PASSWORD: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
-  #         KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-  #       run: |
-  #         CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
-  #         KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-  #         echo -n "$CERTIFICATE_BASE64" | base64 --decode -o $CERTIFICATE_PATH
-  #         security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-  #         security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-  #         security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-  #         security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-  #         security list-keychain -d user -s $KEYCHAIN_PATH
-  #     - name: Install a provisioning profile
-  #       env:
-  #         PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
-  #       run: |
-  #         PROFILES_DIR="~/Library/MobileDevice/Provisioning Profiles"
-  #         mkdir -p "$PROFILES_DIR"
-  #         echo -n "$PROFILE_BASE64" | base64 --decode -o "$PROFILES_DIR/profile.mobileprovision"
-  #     - uses: actions/checkout@v3
-  #     - name: Build
-  #       env:
-  #         TEAM_ID: ${{ secrets.APPLE_DEVELOPMENT_TEAM_ID }}
-  #       run: |
-  #         xcodebuild -project ${{ matrix.project }} \
-  #                    -configuration Release \
-  #                    -allowProvisioningUpdates \
-  #                    GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-  #                    DEVELOPMENT_TEAM="$TEAM_ID"
-
-  # build-
 
   # build-cmake-examples:
   #   strategy:
