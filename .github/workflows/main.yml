@@ -1,20 +1,31 @@
 on: push
 
 jobs:
-  # build-macos-projects:
-  #   if: false
-  #   needs: find-projects
-  #   strategy:
-  #     matrix:
-  #       project: ${{ fromJson(needs.find-projects.outputs.macos-projects) }}
-  #   name: ${{ matrix.project }}
-  #   runs-on: 'macos-latest'
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - run: |
-  #           xcodebuild -project ${{ matrix.project }} \
-  #                      -configuration Release \
-  #                      GCC_TREAT_WARNINGS_AS_ERRORS=YES
+  build-macos-projects:
+    strategy:
+      matrix:
+        project: [
+          {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: UnitTestRunner},
+        ]
+    name: ${{ matrix.project.name }} (macOS)
+    runs-on: 'macos-latest'
+    env:
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/MacOSX/${{ matrix.project.name }}.xcodeproj
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build project
+        run: |
+          xcodebuild -project ${PROJECT_PATH} \
+                     -configuration Release \
+                     GCC_TREAT_WARNINGS_AS_ERRORS=YES
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.project.name }}-macOS
+          path: ${PROJECT_PATH}/build/Release
 
   build-linux-projects:
     strategy:
