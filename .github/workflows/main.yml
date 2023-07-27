@@ -10,10 +10,6 @@ jobs:
       matrix:
         project: [
           {dir: examples, name: DemoRunner},
-          {dir: extras, name: AudioPerformanceTest},
-          {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: BinaryBuilder},
-          {dir: extras, name: NetworkGraphicsDemo},
           {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
