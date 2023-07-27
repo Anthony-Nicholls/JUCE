@@ -10,6 +10,8 @@ jobs:
       matrix:
         project: [
           {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: BinaryBuilder},
           {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
@@ -163,7 +165,7 @@ jobs:
     needs: genrate-cmake-projects
     strategy:
       matrix:
-        os: ['macos-latest', 'ubuntu-latest']
+        os: ['ubuntu-latest']
         target: ['AudioPerformanceTest',
                  'AudioPluginHost',
                  'BinaryBuilder',
@@ -174,6 +176,13 @@ jobs:
                  'AudioPluginExample',
                  'ConsoleAppExample',
                  'GuiAppExample']
+        include:
+          - os: macos-latest
+            target: AudioPluginExample
+          - os: macos-latest
+            target: ConsoleAppExample
+          - os: macos-latest
+            target: GuiAppExample
     name: Build CMake ${{ matrix.target }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
