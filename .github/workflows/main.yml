@@ -16,20 +16,18 @@ jobs:
     name: Build ${{ matrix.project.name }} (macOS)
     runs-on: 'macos-latest'
     env:
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/MacOSX/${{ matrix.project.name }}.xcodeproj
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/MacOSX
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Build project
-        run: |
-          xcodebuild -project ${PROJECT_PATH} \
-                     -configuration Release \
-                     GCC_TREAT_WARNINGS_AS_ERRORS=YES
+        working-directory: ${{ env.PROJECT_PATH }}
+        run: xcodebuild -configuration Release GCC_TREAT_WARNINGS_AS_ERRORS=YES
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.project.name }}-macOS
-          path: ${{ env.PROJECT_PATH }}/../build/Release
+          path: ${{ env.PROJECT_PATH }}/build/Release
 
   # build-ios-projects:
   #   strategy:
@@ -88,7 +86,8 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-linux-dependencies
       - name: Build project
-        run: make -j$(nproc) CONFIG=Release V=1 CXXFLAGS="-Werror" -C ${PROJECT_PATH}
+        working-directory: ${{ env.PROJECT_PATH }}
+        run: make -j$(nproc) CONFIG=Release V=1 CXXFLAGS="-Werror"
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
