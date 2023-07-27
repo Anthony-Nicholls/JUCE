@@ -76,6 +76,7 @@ jobs:
           {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
+        config: ['Debug', 'Release']
     name: Build ${{ matrix.project.name }} (Linux)
     runs-on: 'ubuntu-latest'
     env:
@@ -87,12 +88,12 @@ jobs:
         uses: ./.github/actions/install-linux-dependencies
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
-        run: make -j$(nproc) CONFIG=Release V=1 CXXFLAGS="-Werror"
+        run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror"
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.project.name }}-Linux
-          path: ${{ env.PROJECT_PATH }}/build/intermediate/Release
+          path: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}
 
   build-windows-projects:
     strategy:
@@ -106,6 +107,7 @@ jobs:
           {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
+        config: ['Debug', 'Release']
     name: Build ${{ matrix.project.name }} (Windows)
     runs-on: 'windows-latest'
     env:
@@ -117,7 +119,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
-        run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=Release /warnaserror /maxcpucount
+        run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=${{ matrix.config }} /warnaserror /maxcpucount
 
   # build-android-projects:
   #   strategy:
