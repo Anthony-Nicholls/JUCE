@@ -144,9 +144,9 @@ jobs:
                  'NetworkGraphicsDemo',
                  'Projucer',
                  'UnitTestRunner',
-                 'AudioPlugin',
-                 'ConsoleApp',
-                 'GuiApp']
+                 'AudioPluginExample',
+                 'ConsoleAppExample',
+                 'GuiAppExample']
     name: Build CMake ${{ matrix.target }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
