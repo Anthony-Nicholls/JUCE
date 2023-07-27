@@ -136,7 +136,7 @@ jobs:
     needs: genrate-cmake-projects
     strategy:
       matrix:
-        os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
+        os: ['macos-latest', 'ubuntu-latest']
         target: ['AudioPerformanceTest',
                  'AudioPluginHost',
                  'BinaryBuilder',
