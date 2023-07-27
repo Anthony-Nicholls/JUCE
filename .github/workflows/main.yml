@@ -94,6 +94,31 @@ jobs:
           name: ${{ matrix.project.name }}-Linux
           path: ${{ env.PROJECT_PATH }}/build/intermediate/Release
 
+  build-windows-projects:
+    strategy:
+      matrix:
+        project: [
+          {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPerformanceTest},
+          {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: BinaryBuilder},
+          {dir: extras, name: NetworkGraphicsDemo},
+          {dir: extras, name: Projucer},
+          {dir: extras, name: UnitTestRunner},
+        ]
+    name: Build ${{ matrix.project.name }} (Windows)
+    runs-on: 'windows-latest'
+    env:
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/VisualStudio2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
+      - name: Build project
+        working-directory: ${{ env.PROJECT_PATH }}
+        run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=Release /warnaserror /maxcpucount
+
   # build-android-projects:
   #   strategy:
   #     matrix:
