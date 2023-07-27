@@ -130,7 +130,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: cmake-build
-          key: cmake-build-${{ matrix.os }}-${{ github.sha }}
+          key: cmake-build-${{ runner.os }}-${{ github.sha }}
 
   build-cmake-projects:
     needs: genrate-cmake-projects
@@ -159,6 +159,6 @@ jobs:
         uses: actions/cache@v3
         with:
           path: cmake-build
-          key: cmake-build-${{ matrix.os }}-${{ github.sha }}
+          key: cmake-build-${{ runner.os }}-${{ github.sha }}
       - name: Build projects
         run: cmake --build cmake-build --target ${{ matrix.target }}
