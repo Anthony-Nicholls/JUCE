@@ -47,7 +47,7 @@ jobs:
             target: ConsoleAppExample
           - os: macos-latest
             target: GuiAppExample
-    name: Build CMake ${{ matrix.target }} (${{ matrix.os }})
+    name: CMake ${{ matrix.target }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -73,7 +73,7 @@ jobs:
           {dir: extras, name: UnitTestRunner},
         ]
         config: [Release]
-    name: Build ${{ matrix.project.name }} (macOS)
+    name: ${{ matrix.project.name }} ${{ matrix.config }} (macOS)
     runs-on: 'macos-latest'
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/MacOSX
@@ -98,7 +98,8 @@ jobs:
           {dir: examples, name: DemoRunner},
           {dir: extras, name: AudioPluginHost}
         ]
-    name: Build ${{ matrix.project.name }} (iOS)
+        config: [Release]
+    name: ${{ matrix.project.name }} ${{ matrix.config }} (iOS)
     runs-on: 'macos-latest'
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/iOS
@@ -108,7 +109,7 @@ jobs:
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
         run: |
-          xcodebuild -configuration Release \
+          xcodebuild -configuration ${{ matrix.config }} \
                      -sdk iphonesimulator
                      GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
@@ -125,7 +126,7 @@ jobs:
           {dir: extras, name: UnitTestRunner},
         ]
         config: [Debug, Release]
-    name: Build ${{ matrix.project.name }} ${{ matrix.config }} (Linux)
+    name: ${{ matrix.project.name }} ${{ matrix.config }} (Linux)
     runs-on: 'ubuntu-latest'
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
@@ -156,7 +157,7 @@ jobs:
           {dir: extras, name: UnitTestRunner},
         ]
         config: [Debug, Release]
-    name: Build ${{ matrix.project.name }} ${{ matrix.config }} (Windows)
+    name: ${{ matrix.project.name }} ${{ matrix.config }} (Windows)
     runs-on: 'windows-latest'
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/VisualStudio2022
