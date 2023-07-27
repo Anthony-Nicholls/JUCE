@@ -5,6 +5,64 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  genrate-cmake-projects:
+    strategy:
+      matrix:
+        os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
+    name: Generate CMake (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - if: runner.os == 'Linux'
+        name: Install dependencies
+        uses: ./.github/actions/install-linux-dependencies
+      - name: Generate Projects
+        run: cmake . -B cmake-build -DJUCE_BUILD_EXAMPLES=ON -DJUCE_BUILD_EXTRAS=ON
+      - name: Cache cmake-build
+        uses: actions/cache@v3
+        with:
+          path: cmake-build
+          key: cmake-build-${{ runner.os }}-${{ github.sha }}
+
+  build-cmake-projects:
+    needs: genrate-cmake-projects
+    strategy:
+      matrix:
+        os: ['ubuntu-latest']
+        target: ['AudioPerformanceTest',
+                 'AudioPluginHost',
+                 'BinaryBuilder',
+                 'DemoRunner',
+                 'NetworkGraphicsDemo',
+                 'Projucer',
+                 'UnitTestRunner',
+                 'AudioPluginExample',
+                 'ConsoleAppExample',
+                 'GuiAppExample']
+        include:
+          - os: macos-latest
+            target: AudioPluginExample
+          - os: macos-latest
+            target: ConsoleAppExample
+          - os: macos-latest
+            target: GuiAppExample
+    name: Build CMake ${{ matrix.target }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - if: runner.os == 'Linux'
+        name: Install dependencies
+        uses: ./.github/actions/install-linux-dependencies
+      - name: Restore cmake-build cache
+        uses: actions/cache@v3
+        with:
+          path: cmake-build
+          key: cmake-build-${{ runner.os }}-${{ github.sha }}
+      - name: Build projects
+        run: cmake --build cmake-build --target ${{ matrix.target }}
+
   build-macos-projects:
     strategy:
       matrix:
@@ -24,7 +82,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
-        run: xcodebuild -configuration ${{ matrix.config }} GCC_TREAT_WARNINGS_AS_ERRORS=YES
+        run: |
+          xcodebuild -configuration ${{ matrix.config }} \
+                     GCC_TREAT_WARNINGS_AS_ERRORS=YES
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
@@ -50,7 +110,7 @@ jobs:
         run: |
           xcodebuild -configuration Release \
                      -sdk iphonesimulator
-                     GCC_TREAT_WARNINGS_AS_ERRORS=YES"
+                     GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
   build-linux-projects:
     strategy:
@@ -126,61 +186,3 @@ jobs:
   #       run: |
   #         cd ${{ matrix.project }}
   #         ./gradlew --parallel --max-workers=$(nproc) assembleRelease
-
-  genrate-cmake-projects:
-    strategy:
-      matrix:
-        os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
-    name: Generate CMake (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - if: runner.os == 'Linux'
-        name: Install dependencies
-        uses: ./.github/actions/install-linux-dependencies
-      - name: Generate Projects
-        run: cmake . -B cmake-build -DJUCE_BUILD_EXAMPLES=ON -DJUCE_BUILD_EXTRAS=ON
-      - name: Cache cmake-build
-        uses: actions/cache@v3
-        with:
-          path: cmake-build
-          key: cmake-build-${{ runner.os }}-${{ github.sha }}
-
-  build-cmake-projects:
-    needs: genrate-cmake-projects
-    strategy:
-      matrix:
-        os: ['ubuntu-latest']
-        target: ['AudioPerformanceTest',
-                 'AudioPluginHost',
-                 'BinaryBuilder',
-                 'DemoRunner',
-                 'NetworkGraphicsDemo',
-                 'Projucer',
-                 'UnitTestRunner',
-                 'AudioPluginExample',
-                 'ConsoleAppExample',
-                 'GuiAppExample']
-        include:
-          - os: macos-latest
-            target: AudioPluginExample
-          - os: macos-latest
-            target: ConsoleAppExample
-          - os: macos-latest
-            target: GuiAppExample
-    name: Build CMake ${{ matrix.target }} (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - if: runner.os == 'Linux'
-        name: Install dependencies
-        uses: ./.github/actions/install-linux-dependencies
-      - name: Restore cmake-build cache
-        uses: actions/cache@v3
-        with:
-          path: cmake-build
-          key: cmake-build-${{ runner.os }}-${{ github.sha }}
-      - name: Build projects
-        run: cmake --build cmake-build --target ${{ matrix.target }}
