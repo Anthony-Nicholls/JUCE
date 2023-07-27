@@ -6,7 +6,11 @@ jobs:
       matrix:
         project: [
           {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPerformanceTest},
           {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: BinaryBuilder},
+          {dir: extras, name: NetworkGraphicsDemo},
+          {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
     name: Build ${{ matrix.project.name }} (macOS)
@@ -25,7 +29,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.project.name }}-macOS
-          path: ${PROJECT_PATH}/build/Release
+          path: ${{ env.PROJECT_PATH }}/../build/Release
 
   # build-ios-projects:
   #   strategy:
@@ -67,7 +71,11 @@ jobs:
       matrix:
         project: [
           {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPerformanceTest},
           {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: BinaryBuilder},
+          {dir: extras, name: NetworkGraphicsDemo},
+          {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
     name: Build ${{ matrix.project.name }} (Linux)
@@ -85,7 +93,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.project.name }}-Linux
-          path: ${PROJECT_PATH}/build/intermediate/Release
+          path: ${{ env.PROJECT_PATH }}/build/intermediate/Release
 
   # build-android-projects:
   #   strategy:
@@ -130,7 +138,16 @@ jobs:
     strategy:
       matrix:
         os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
-        target: ['DemoRunner']
+        target: ['AudioPerformanceTest',
+                 'AudioPluginHost',
+                 'BinaryBuilder',
+                 'DemoRunner',
+                 'NetworkGraphicsDemo',
+                 'Projucer',
+                 'UnitTestRunner',
+                 'AudioPlugin',
+                 'ConsoleApp',
+                 'GuiApp']
     name: Build CMake ${{ matrix.target }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
