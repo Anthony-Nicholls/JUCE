@@ -11,7 +11,6 @@ jobs:
         project: [
           {dir: examples, name: DemoRunner},
           {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: BinaryBuilder},
           {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
@@ -31,40 +30,26 @@ jobs:
           name: ${{ matrix.project.name }}-macOS
           path: ${{ env.PROJECT_PATH }}/build/Release
 
-  # build-ios-projects:
-  #   strategy:
-  #     matrix:
-  #       project: [
-  #         {dir: examples, name: DemoRunner}
-  #       ]
-  #   name: Build ${{ matrix.project.name }} (iOS)
-  #   runs-on: 'macos-latest'
-  #   env:
-  #     PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/iOS/${{ matrix.project.name }}.xcodeproj
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Install certificate
-  #       uses: ./.github/actions/install-apple-signing-cert
-  #       with:
-  #         certificate-base64: ${{ secrets.APPLE_SIGNING_CERTIFICATE_BASE64 }}
-  #         certificate-password: ${{ secrets.APPLE_SIGNING_CERTIFICATE_PASSWORD }}
-  #     - name: Install provisioning profile
-  #       uses: ./.github/actions/install-ios-provisioning-profile
-  #       with:
-  #         profile-base64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
-  #     - name: Build project
-  #       run: |
-  #         xcodebuild -project ${PROJECT_PATH} \
-  #                    -configuration Release \
-  #                    -allowProvisioningUpdates \
-  #                    GCC_TREAT_WARNINGS_AS_ERRORS=YES \
-  #                    DEVELOPMENT_TEAM="${{ secrets.APPLE_DEVELOPMENT_TEAM_ID }}"
-  #     - name: Upload build
-  #       uses: actions/upload-artifact@v3
-  #       with:
-  #         name: ${{ matrix.project.name }}-iOS
-  #         path: ${PROJECT_PATH}/build/Release
+  build-ios-projects:
+    strategy:
+      matrix:
+        project: [
+          {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPluginHost}
+        ]
+    name: Build ${{ matrix.project.name }} (iOS)
+    runs-on: 'macos-latest'
+    env:
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/iOS/${{ matrix.project.name }}.xcodeproj
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Build project
+        run: |
+          xcodebuild -project ${PROJECT_PATH} \
+                     -sdk iphonesimulator \
+                     -configuration Release
+                     GCC_TREAT_WARNINGS_AS_ERRORS=YES"
 
   build-linux-projects:
     strategy:
