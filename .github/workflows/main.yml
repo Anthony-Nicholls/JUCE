@@ -8,7 +8,7 @@ jobs:
   genrate-cmake-projects:
     strategy:
       matrix:
-        os: ['macos-latest', 'ubuntu-latest', 'windows-latest']
+        os: [macos-latest, ubuntu-latest, windows-latest]
     name: Generate CMake (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -29,17 +29,17 @@ jobs:
     needs: genrate-cmake-projects
     strategy:
       matrix:
-        os: ['ubuntu-latest', 'windows-latest']
-        target: ['AudioPerformanceTest',
-                 'AudioPluginHost',
-                 'BinaryBuilder',
-                 'DemoRunner',
-                 'NetworkGraphicsDemo',
-                 'Projucer',
-                 'UnitTestRunner',
-                 'AudioPluginExample',
-                 'ConsoleAppExample',
-                 'GuiAppExample']
+        os: [ubuntu-latest, windows-latest]
+        target: [AudioPerformanceTest,
+                 AudioPluginHost,
+                 BinaryBuilder,
+                 DemoRunner,
+                 NetworkGraphicsDemo,
+                 Projucer,
+                 UnitTestRunner,
+                 AudioPluginExample,
+                 ConsoleAppExample,
+                 GuiAppExample]
         include:
           - os: macos-latest
             target: AudioPluginExample
@@ -77,7 +77,7 @@ jobs:
         ]
         config: [Release]
     name: ${{ matrix.project.name }} ${{ matrix.config }} (macOS)
-    runs-on: 'macos-latest'
+    runs-on: macos-latest
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/MacOSX
     steps:
@@ -103,7 +103,7 @@ jobs:
         ]
         config: [Release]
     name: ${{ matrix.project.name }} ${{ matrix.config }} (iOS)
-    runs-on: 'macos-latest'
+    runs-on: macos-latest
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/iOS
     steps:
@@ -130,7 +130,7 @@ jobs:
         ]
         config: [Debug, Release]
     name: ${{ matrix.project.name }} ${{ matrix.config }} (Linux)
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
     steps:
@@ -161,7 +161,7 @@ jobs:
         ]
         config: [Debug, Release]
     name: ${{ matrix.project.name }} ${{ matrix.config }} (Windows)
-    runs-on: 'windows-latest'
+    runs-on: windows-latest
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/VisualStudio2022
     steps:
@@ -181,7 +181,7 @@ jobs:
         ]
         config: [Debug, Release]
     name: ${{ matrix.project.name }} ${{ matrix.config }} (Android)
-    runs-on: 'ubuntu-latest'
+    runs-on: ubuntu-latest
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/Android
     steps:
