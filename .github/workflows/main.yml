@@ -170,20 +170,41 @@ jobs:
         working-directory: ${{ env.PROJECT_PATH }}
         run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=${{ matrix.config }} /warnaserror /maxcpucount
 
-  # build-android-projects:
-  #   strategy:
-  #     matrix:
-  #       project: [
-  #         {dir: examples, name: DemoRunner}
-  #       ]
-  #   name: Build ${{ matrix.project.name }} (Android)
-  #   runs-on: 'ubuntu-latest'
-  #   env:
-  #     PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
-  #   steps:
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v3
-  #     - name: Build project
-  #       run: |
-  #         cd ${{ matrix.project }}
-  #         ./gradlew --parallel --max-workers=$(nproc) assembleRelease
+  build-android-projects:
+    strategy:
+      matrix:
+        project: [
+          {dir: examples, name: DemoRunner}
+        ]
+        config: [Debug, Release]
+    name: ${{ matrix.project.name }} ${{ matrix.config }} (Android)
+    runs-on: 'ubuntu-latest'
+    env:
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/Android
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Generate debug keystore
+        env:
+          ANDROID_PATH: ~/.android
+        run: |
+          mkdir ${{ env.ANDROID_PATH }}
+          cd ${{ env.ANDROID_PATH }}
+          keytool -genkey \
+                  -v \
+                  -keystore debug.keystore \
+                  -storepass android \
+                  -alias androiddebugkey \
+                  -keypass android \
+                  -keyalg RSA \
+                  -keysize 2048 \
+                  -validity 10000 \
+                  -dname "cn=Android Debug, ou=Android, o=Android, c=UK"
+      - name: Build project
+        working-directory: ${{ env.PROJECT_PATH }}
+        run: ./gradlew build --parallel --max-workers=$(nproc) assemble${{ matrix.config }}
