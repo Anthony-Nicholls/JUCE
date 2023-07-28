@@ -29,7 +29,7 @@ jobs:
     needs: genrate-cmake-projects
     strategy:
       matrix:
-        os: ['ubuntu-latest']
+        os: ['ubuntu-latest', 'windows-latest']
         target: ['AudioPerformanceTest',
                  'AudioPluginHost',
                  'BinaryBuilder',
@@ -55,6 +55,9 @@ jobs:
       - if: runner.os == 'Linux'
         name: Install dependencies
         uses: ./.github/actions/install-linux-dependencies
+      - if: runner.os == 'Windows'
+        name: Add msbuild to PATH
+        uses: microsoft/setup-msbuild@v1.1
       - name: Restore cmake-build cache
         uses: actions/cache@v3
         with:
