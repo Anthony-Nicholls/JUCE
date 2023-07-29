@@ -55,7 +55,8 @@ jobs:
           {dir: extras, name: UnitTestRunner},
         ]
         config: [Debug, Release]
-    name: ${{ matrix.project.name }} (Make ${{ matrix.config }})
+        compiler: [g++, clang++]
+    name: ${{ matrix.project.name }} (${{ matrix.compiler }} ${{ matrix.config }})
     runs-on: ubuntu-latest
     env:
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
@@ -66,7 +67,7 @@ jobs:
         uses: ./.github/actions/install-linux-dependencies
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
-        run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror"
+        run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror" CXX="${{ matrix.compiler }}"
       - if: ${{ matrix.project.name }} == 'UnitTestRunner'
         name: Run Unit Tests
         working-directory: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}
