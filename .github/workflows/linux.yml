@@ -1,0 +1,78 @@
+on: push
+
+concurrency:
+  group: linux-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  genrate-cmake:
+    name: Generate CMake
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-linux-dependencies
+      - name: Generate CMake
+        uses: ./.github/actions/generate-cmake
+
+  build-cmake:
+    needs: genrate-cmake
+    strategy:
+      matrix:
+        target: [AudioPerformanceTest,
+                  AudioPluginHost,
+                  BinaryBuilder,
+                  DemoRunner,
+                  NetworkGraphicsDemo,
+                  Projucer,
+                  UnitTestRunner,
+                  AudioPluginExample,
+                  ConsoleAppExample,
+                  GuiAppExample]
+    name: ${{ matrix.target }} (CMake)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-linux-dependencies
+      - name: Build CMake target ${{ matrix.target }}
+        uses: ./.github/actions/install-linux-dependencies
+        with:
+          target: ${{ matrix.target }}
+
+  build-projects:
+    strategy:
+      matrix:
+        project: [
+          {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPerformanceTest},
+          {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: BinaryBuilder},
+          {dir: extras, name: NetworkGraphicsDemo},
+          {dir: extras, name: Projucer},
+          {dir: extras, name: UnitTestRunner},
+        ]
+        config: [Debug, Release]
+    name: ${{ matrix.project.name }} (Make ${{ matrix.config }})
+    runs-on: ubuntu-latest
+    env:
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-linux-dependencies
+      - name: Build project
+        working-directory: ${{ env.PROJECT_PATH }}
+        run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror"
+      - if: ${{ matrix.project.name }} == 'UnitTestRunner'
+        name: Run Unit Tests
+        working-directory: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}
+        run: ./UnitTestRunner
+      - name: Upload build
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.project.name }}-${{ matrix.config }} (Linux)
+          path: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}

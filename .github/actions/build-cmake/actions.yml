@@ -1,0 +1,14 @@
+name: Build CMake
+inputs:
+  target:
+runs:
+  using: composite
+  steps:
+  - name: Restore cmake-build cache
+    uses: actions/cache@v3
+    with:
+      path: cmake-build
+      key: cmake-build-${{ runner.os }}-${{ github.sha }}
+  - name: Build projects
+    shell: bash
+    run: cmake --build cmake-build --target ${{ inputs.target }}

@@ -8,7 +8,7 @@ jobs:
   genrate-cmake-projects:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, windows-latest]
     name: Generate CMake (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -29,7 +29,7 @@ jobs:
     needs: genrate-cmake-projects
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [windows-latest]
         target: [AudioPerformanceTest,
                  AudioPluginHost,
                  BinaryBuilder,
@@ -58,13 +58,10 @@ jobs:
       - if: runner.os == 'Windows'
         name: Add msbuild to PATH
         uses: microsoft/setup-msbuild@v1.1
-      - name: Restore cmake-build cache
-        uses: actions/cache@v3
+      - name: Build ${{ matrix.target }} CMake target
+        uses: ./.github/actions/install-linux-dependencies
         with:
-          path: cmake-build
-          key: cmake-build-${{ runner.os }}-${{ github.sha }}
-      - name: Build projects
-        run: cmake --build cmake-build --target ${{ matrix.target }}
+          target: ${{ matrix.target }}
 
   build-macos-projects:
     strategy:
@@ -116,37 +113,6 @@ jobs:
                      -sdk iphonesimulator
                      GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
-  build-linux-projects:
-    strategy:
-      matrix:
-        project: [
-          {dir: examples, name: DemoRunner},
-          {dir: extras, name: AudioPerformanceTest},
-          {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: BinaryBuilder},
-          {dir: extras, name: NetworkGraphicsDemo},
-          {dir: extras, name: Projucer},
-          {dir: extras, name: UnitTestRunner},
-        ]
-        config: [Debug, Release]
-    name: ${{ matrix.project.name }} ${{ matrix.config }} (Linux)
-    runs-on: ubuntu-latest
-    env:
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Install dependencies
-        uses: ./.github/actions/install-linux-dependencies
-      - name: Build project
-        working-directory: ${{ env.PROJECT_PATH }}
-        run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror"
-      - name: Upload build
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.project.name }}-${{ matrix.config }} (Linux)
-          path: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}
-
   build-windows-projects:
     strategy:
       matrix:
@@ -177,7 +143,10 @@ jobs:
     strategy:
       matrix:
         project: [
-          {dir: examples, name: DemoRunner}
+          {dir: examples, name: DemoRunner},
+          {dir: extras, name: AudioPerformanceTest},
+          {dir: extras, name: AudioPluginHost},
+          {dir: extras, name: NetworkGraphicsDemo}
         ]
         config: [Debug, Release]
     name: ${{ matrix.project.name }} ${{ matrix.config }} (Android)

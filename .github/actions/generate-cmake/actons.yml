@@ -1,0 +1,12 @@
+name: Generate CMake
+runs:
+  using: composite
+  steps:
+  - name: Generate Projects
+    shell: bash
+    run: cmake . -B cmake-build -DJUCE_BUILD_EXAMPLES=ON -DJUCE_BUILD_EXTRAS=ON
+  - name: Cache cmake-build
+    uses: actions/cache@v3
+    with:
+      path: cmake-build
+      key: cmake-build-${{ runner.os }}-${{ github.sha }}
