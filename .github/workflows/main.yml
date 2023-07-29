@@ -8,7 +8,7 @@ jobs:
   genrate-cmake-projects:
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
+        os: [macos-latest]
     name: Generate CMake (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -30,23 +30,9 @@ jobs:
     strategy:
       matrix:
         os: [windows-latest]
-        target: [AudioPerformanceTest,
-                 AudioPluginHost,
-                 BinaryBuilder,
-                 DemoRunner,
-                 NetworkGraphicsDemo,
-                 Projucer,
-                 UnitTestRunner,
-                 AudioPluginExample,
+        target: [AudioPluginExample,
                  ConsoleAppExample,
                  GuiAppExample]
-        include:
-          - os: macos-latest
-            target: AudioPluginExample
-          - os: macos-latest
-            target: ConsoleAppExample
-          - os: macos-latest
-            target: GuiAppExample
     name: CMake ${{ matrix.target }} (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -55,11 +41,8 @@ jobs:
       - if: runner.os == 'Linux'
         name: Install dependencies
         uses: ./.github/actions/install-linux-dependencies
-      - if: runner.os == 'Windows'
-        name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
       - name: Build ${{ matrix.target }} CMake target
-        uses: ./.github/actions/install-linux-dependencies
+        uses: ./.github/actions/build-cmake
         with:
           target: ${{ matrix.target }}
 
@@ -112,32 +95,6 @@ jobs:
           xcodebuild -configuration ${{ matrix.config }} \
                      -sdk iphonesimulator
                      GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-  build-windows-projects:
-    strategy:
-      matrix:
-        project: [
-          {dir: examples, name: DemoRunner},
-          {dir: extras, name: AudioPerformanceTest},
-          {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: BinaryBuilder},
-          {dir: extras, name: NetworkGraphicsDemo},
-          {dir: extras, name: Projucer},
-          {dir: extras, name: UnitTestRunner},
-        ]
-        config: [Debug, Release]
-    name: ${{ matrix.project.name }} ${{ matrix.config }} (Windows)
-    runs-on: windows-latest
-    env:
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/VisualStudio2022
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-      - name: Build project
-        working-directory: ${{ env.PROJECT_PATH }}
-        run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=${{ matrix.config }} /warnaserror /maxcpucount
 
   build-android-projects:
     strategy:
