@@ -12,8 +12,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Install dependencies
         uses: ./.github/actions/build-cmake
+
       - name: Generate CMake
         uses: ./.github/actions/generate-cmake
 
@@ -22,22 +24,24 @@ jobs:
     strategy:
       matrix:
         target: [AudioPerformanceTest,
-                  AudioPluginHost,
-                  BinaryBuilder,
-                  DemoRunner,
-                  NetworkGraphicsDemo,
-                  Projucer,
-                  UnitTestRunner,
-                  AudioPluginExample,
-                  ConsoleAppExample,
-                  GuiAppExample]
+                 AudioPluginHost,
+                 BinaryBuilder,
+                 DemoRunner,
+                 NetworkGraphicsDemo,
+                 Projucer,
+                 UnitTestRunner,
+                 AudioPluginExample,
+                 ConsoleAppExample,
+                 GuiAppExample]
     name: ${{ matrix.target }} (CMake)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Install dependencies
         uses: ./.github/actions/install-linux-dependencies
+
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/install-linux-dependencies
         with:
@@ -64,15 +68,19 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Install dependencies
         uses: ./.github/actions/install-linux-dependencies
+
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
         run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror" CXX="${{ matrix.compiler }}"
+
       - if: matrix.project.name == 'UnitTestRunner'
         name: Run Unit Tests
         working-directory: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}
         run: ./UnitTestRunner
+
       - name: Upload build
         uses: actions/upload-artifact@v3
         with:
