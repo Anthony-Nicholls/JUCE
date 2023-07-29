@@ -211,4 +211,4 @@ jobs:
                   -dname "cn=Android Debug, ou=Android, o=Android, c=UK"
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
-        run: ./gradlew build --parallel --max-workers=$(nproc) assemble${{ matrix.config }}
+        run: ./gradlew --parallel --max-workers=$(nproc) assemble${{ matrix.config }}
