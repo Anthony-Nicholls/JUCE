@@ -13,7 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
       - name: Install dependencies
-        uses: ./.github/actions/install-linux-dependencies
+        uses: ./.github/actions/build-cmake
       - name: Generate CMake
         uses: ./.github/actions/generate-cmake
 
