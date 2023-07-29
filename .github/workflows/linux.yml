@@ -5,7 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  genrate-cmake:
+  generate-cmake:
     name: Generate CMake
     runs-on: ubuntu-latest
     steps:
@@ -17,7 +17,7 @@ jobs:
         uses: ./.github/actions/generate-cmake
 
   build-cmake:
-    needs: genrate-cmake
+    needs: generate-cmake
     strategy:
       matrix:
         target: [AudioPerformanceTest,
