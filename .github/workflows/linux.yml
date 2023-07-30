@@ -6,7 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  generate-cmake:
+  cmake-generate:
     name: Generate CMake
     runs-on: ubuntu-latest
     steps:
@@ -14,13 +14,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Install dependencies
-        uses: ./.github/actions/build-cmake
+        uses: ./.github/actions/install-linux-dependencies
 
       - name: Generate CMake
-        uses: ./.github/actions/generate-cmake
+        uses: ./.github/actions/cmake-generate
+        with:
+          generator: Ninja
 
-  build-cmake:
-    needs: generate-cmake
+  cmake-builds:
+    needs: cmake-generate
     strategy:
       matrix:
         target: [AudioPerformanceTest,
@@ -43,11 +45,11 @@ jobs:
         uses: ./.github/actions/install-linux-dependencies
 
       - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/install-linux-dependencies
+        uses: ./.github/actions/cmake-build
         with:
           target: ${{ matrix.target }}
 
-  build-projects:
+  projucer-builds:
     strategy:
       matrix:
         project: [
@@ -75,14 +77,3 @@ jobs:
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
         run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror" CXX="${{ matrix.compiler }}"
-
-      - if: matrix.project.name == 'UnitTestRunner'
-        name: Run Unit Tests
-        working-directory: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}
-        run: ./UnitTestRunner
-
-      - name: Upload build
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.project.name }}-${{ matrix.config }} (Linux)
-          path: ${{ env.PROJECT_PATH }}/build/intermediate/${{ matrix.config }}

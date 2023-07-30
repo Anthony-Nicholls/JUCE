@@ -1,78 +1,64 @@
-name: Windows builds
+name: iOS builds
 on: push
 
 concurrency:
-  group: windows-${{ github.ref }}
+  group: ios-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   cmake-generate:
     name: Generate CMake
-    runs-on: windows-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-
       - name: Generate CMake
         uses: ./.github/actions/cmake-generate
         with:
-          generator: Visual Studio 17 2022
+          generator: Xcode
+          args: -DCMAKE_SYSTEM_NAME=iOS
 
   cmake-builds:
     needs: cmake-generate
     strategy:
       matrix:
-        target: [AudioPerformanceTest,
-                 AudioPluginHost,
-                 BinaryBuilder,
-                 DemoRunner,
-                 NetworkGraphicsDemo,
-                 Projucer,
-                 UnitTestRunner,
-                 AudioPluginExample,
+        target: [AudioPluginExample,
                  ConsoleAppExample,
                  GuiAppExample]
     name: ${{ matrix.target }} (CMake)
-    runs-on: windows-latest
+    runs-on: macos-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
 
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/cmake-build
         with:
           target: ${{ matrix.target }}
+          args: -sdk iphonesimulator
 
   projucer-builds:
     strategy:
       matrix:
         project: [
           {dir: examples, name: DemoRunner},
-          {dir: extras, name: AudioPerformanceTest},
           {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: BinaryBuilder},
-          {dir: extras, name: NetworkGraphicsDemo},
           {dir: extras, name: Projucer},
           {dir: extras, name: UnitTestRunner},
         ]
-        config: [Debug, Release]
+        config: [Release]
     name: ${{ matrix.project.name }} (${{ matrix.config }})
-    runs-on: windows-latest
+    runs-on: macos-latest
     env:
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/VisualStudio2022
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/iOS
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
-        run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=${{ matrix.config }} /warnaserror /maxcpucount
+        run: |
+          xcodebuild -configuration ${{ matrix.config }} \
+                     -sdk iphonesimulator \
+                     GCC_TREAT_WARNINGS_AS_ERRORS=YES

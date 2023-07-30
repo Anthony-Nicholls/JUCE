@@ -1,10 +1,17 @@
 name: Generate CMake
+inputs:
+  generator:
+  args:
 runs:
   using: composite
   steps:
   - name: Generate Projects
     shell: bash
-    run: cmake . -B cmake-build -DJUCE_BUILD_EXAMPLES=ON -DJUCE_BUILD_EXTRAS=ON
+    run: cmake . -B cmake-build \
+                 -G "${{ inputs.generator }}"" \
+                 ${{ inputs.args }}
+                 -DJUCE_BUILD_EXAMPLES=ON \
+                 -DJUCE_BUILD_EXTRAS=ON
   - name: Cache cmake-build
     uses: actions/cache@v3
     with:
