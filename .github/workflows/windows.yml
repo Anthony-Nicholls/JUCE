@@ -17,7 +17,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Generate CMake
-        uses: ./.github/actions/cmake-generate
+        uses: ./.github/actions/generate-cmake
         with:
           generator: Visual Studio 17 2022
 
@@ -45,7 +45,7 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/cmake-build
+        uses: ./.github/actions/build-cmake
         with:
           target: ${{ matrix.target }}
 

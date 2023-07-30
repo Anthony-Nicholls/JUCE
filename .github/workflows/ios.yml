@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Generate CMake
-        uses: ./.github/actions/cmake-generate
+        uses: ./.github/actions/generate-cmake
         with:
           generator: Xcode
           args: -DCMAKE_SYSTEM_NAME=iOS
@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/cmake-build
+        uses: ./.github/actions/build-cmake
         with:
           target: ${{ matrix.target }}
           args: -sdk iphonesimulator

@@ -1,7 +1,9 @@
 name: Generate CMake
 inputs:
   generator:
+    required: true
   args:
+    default: ''
 runs:
   using: composite
   steps:
