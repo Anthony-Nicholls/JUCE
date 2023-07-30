@@ -11,9 +11,7 @@ jobs:
       matrix:
         project: [
           {dir: examples, name: DemoRunner},
-          {dir: extras, name: AudioPerformanceTest},
-          {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: NetworkGraphicsDemo}
+          {dir: extras, name: AudioPluginHost}
         ]
         config: [Debug, Release]
     name: ${{ matrix.project.name }} (${{ matrix.config }})
