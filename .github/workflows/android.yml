@@ -19,7 +19,7 @@ jobs:
     name: ${{ matrix.project.name }} (${{ matrix.config }})
     runs-on: ubuntu-latest
     env:
-      ANDROID_PATH: ~/.android
+      ANDROID_PATH: ${HOME}/.android
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/Android
     steps:
       - name: Checkout repository
