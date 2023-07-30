@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ANDROID_PATH: ~/.android
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
+      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/Android
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
