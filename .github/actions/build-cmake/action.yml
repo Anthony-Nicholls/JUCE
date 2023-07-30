@@ -11,13 +11,15 @@ runs:
   steps:
   - name: Generate Projects
     shell: bash
-    run: cmake . -B cmake-build \
-                 -G "${{ inputs.generator }}" \
-                 -DJUCE_BUILD_EXAMPLES=ON \
-                 -DJUCE_BUILD_EXTRAS=ON
+    run: |
+      cmake . -B cmake-build \
+              -G "${{ inputs.generator }}" \
+              -DJUCE_BUILD_EXAMPLES=ON \
+              -DJUCE_BUILD_EXTRAS=ON
 
   - name: Build projects
     shell: bash
-    run: cmake --build cmake-build \
-               --config ${{ inputs.config }} \
-               --target ${{ inputs.target }}
+    run: |
+      cmake --build cmake-build \
+            --target ${{ inputs.target }} \
+            --config ${{ inputs.config }}
