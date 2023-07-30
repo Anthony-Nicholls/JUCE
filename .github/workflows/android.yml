@@ -19,7 +19,6 @@ jobs:
     name: ${{ matrix.project.name }} (${{ matrix.config }})
     runs-on: ubuntu-latest
     env:
-      ANDROID_PATH: ${HOME}/.android
       PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/Android
     steps:
       - name: Checkout repository
@@ -32,12 +31,10 @@ jobs:
           distribution: temurin
           cache: gradle
 
-      - name: Create ${{ env.ANDROID_PATH }} directory
-        run: mkdir ${{ env.ANDROID_PATH }}
-
       - name: Generate debug keystore
-        working-directory: ${{ env.ANDROID_PATH }}
         run: |
+          mkdir ~/.android
+          cd ~/.android
           keytool -genkey \
                   -v \
                   -keystore debug.keystore \
