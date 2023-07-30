@@ -13,7 +13,7 @@ jobs:
                  ConsoleAppExample,
                  GuiAppExample]
         config: [Debug, Release]
-    name: ${{ matrix.target }} (CMake)
+    name: ${{ matrix.target }} (CMake - ${{ matrix.config }})
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
