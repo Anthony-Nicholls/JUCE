@@ -1,0 +1,28 @@
+name: Build CMake
+inputs:
+  build-dir:
+    required: true
+  config:
+    required: true
+  configure-args:
+    default: ''
+  generator:
+    required: true
+  target:
+    required: true
+runs:
+  using: composite
+  steps:
+  - name: Generate Projects
+    shell: bash
+    run: |
+      cmake . -B "${{ inputs.build-dir }}" \
+              -G "${{ inputs.generator }}" \
+              ${{ inputs.configure-args }}
+
+  - name: Build Projects
+    shell: bash
+    run: |
+      cmake --build "${{ inputs.build-dir }}" \
+            --target "${{ inputs.target }}" \
+            --config "${{ inputs.config }}"

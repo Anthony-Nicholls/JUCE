@@ -26,12 +26,13 @@ jobs:
         uses: ashutoshvarma/setup-ninja@master
 
       - name: Build CMake target ${{ matrix.target }}
-        uses: ashutoshvarma/action-cmake-build@master
+        uses: ./.github/actions/build-cmake
         with:
           build-dir: ./cmake-build
-          configure-options: -G Visual Studio 17 2022
-          build-type: ${{ matrix.config }}
+          generator: Ninja Multi-Config
+          config: ${{ matrix.config }}
           target: ${{ matrix.target }}
+          configure-args: -DJUCE_BUILD_EXAMPLES=ON
 
   projucer-builds:
     strategy:

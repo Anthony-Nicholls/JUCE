@@ -23,12 +23,13 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build CMake target ${{ matrix.target }}
-        uses: ashutoshvarma/action-cmake-build@master
+        uses: ./.github/actions/build-cmake
         with:
           build-dir: ./cmake-build
-          configure-options: -G Ninja
-          build-type: ${{ matrix.config }}
+          generator: Visual Studio 17 2022
+          config: ${{ matrix.config }}
           target: ${{ matrix.target }}
+          configure-args: -DJUCE_BUILD_EXAMPLES=ON
 
   projucer-builds:
     strategy:
