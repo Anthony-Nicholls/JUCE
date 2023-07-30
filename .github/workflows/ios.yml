@@ -23,9 +23,7 @@ jobs:
     needs: cmake-generate
     strategy:
       matrix:
-        target: [AudioPluginExample,
-                 ConsoleAppExample,
-                 GuiAppExample]
+        target: [GuiAppExample]
     name: ${{ matrix.target }} (CMake)
     runs-on: macos-latest
     steps:
@@ -43,9 +41,7 @@ jobs:
       matrix:
         project: [
           {dir: examples, name: DemoRunner},
-          {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: Projucer},
-          {dir: extras, name: UnitTestRunner},
+          {dir: extras, name: AudioPluginHost}
         ]
         config: [Release]
     name: ${{ matrix.project.name }} (${{ matrix.config }})
