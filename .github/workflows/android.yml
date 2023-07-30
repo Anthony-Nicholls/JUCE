@@ -48,7 +48,7 @@ jobs:
 
       - name: Enable warning as error
         working-directory: ${{ env.PROJECT_PATH }}
-        run: echo -e '\ntarget_compile_options( ${{ matrix.project.name }} PRIVATE -Werror )' >> "app/CMakeLists.txt"
+        run: echo -e '\ntarget_compile_options( ${BINARY_NAME} PRIVATE -Werror )' >> "app/CMakeLists.txt"
 
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
