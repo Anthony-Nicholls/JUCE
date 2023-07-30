@@ -6,38 +6,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cmake-generate:
-    name: Generate CMake
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Generate CMake
-        uses: ./.github/actions/generate-cmake
-        with:
-          generator: Xcode
-          args: -DCMAKE_SYSTEM_NAME=iOS
-
-  cmake-builds:
-    needs: cmake-generate
-    strategy:
-      matrix:
-        target: [DemoRunner]
-        config: [Release]
-    name: ${{ matrix.target }} (CMake)
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/build-cmake
-        with:
-          config: ${{ matrix.config }}
-          target: ${{ matrix.target }}
-          args: -- -sdk iphonesimulator
-
   projucer-builds:
     strategy:
       matrix:

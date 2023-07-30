@@ -6,23 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cmake-generate:
-    name: Generate CMake
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Install dependencies
-        uses: ./.github/actions/install-linux-dependencies
-
-      - name: Generate CMake
-        uses: ./.github/actions/generate-cmake
-        with:
-          generator: Ninja Multi-Config
-
   cmake-builds:
-    needs: cmake-generate
     strategy:
       matrix:
         target: [AudioPluginExample,
@@ -41,6 +25,7 @@ jobs:
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
+          generator: Ninja Multi-Config
           config: ${{ matrix.config }}
           target: ${{ matrix.target }}
 

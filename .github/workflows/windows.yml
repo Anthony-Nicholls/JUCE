@@ -6,20 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cmake-generate:
-    name: Generate CMake
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Generate CMake
-        uses: ./.github/actions/generate-cmake
-        with:
-          generator: Visual Studio 17 2022
-
   cmake-builds:
-    needs: cmake-generate
     strategy:
       matrix:
         target: [AudioPluginExample,
@@ -38,6 +25,7 @@ jobs:
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
+          generator: Visual Studio 17 2022
           config: ${{ matrix.config }}
           target: ${{ matrix.target }}
 

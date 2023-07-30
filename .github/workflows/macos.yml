@@ -6,20 +6,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cmake-generate:
-    name: Generate CMake
-    runs-on: macos-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Generate CMake
-        uses: ./.github/actions/generate-cmake
-        with:
-          generator: Xcode
-
   cmake-builds:
-    needs: cmake-generate
     strategy:
       matrix:
         target: [AudioPluginExample,
@@ -35,6 +22,7 @@ jobs:
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
+          generator: Xcode
           config: ${{ matrix.config }}
           target: ${{ matrix.target }}
 
