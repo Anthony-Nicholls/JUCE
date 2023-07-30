@@ -10,7 +10,7 @@ runs:
   - name: Generate Projects
     shell: bash
     run: cmake . -B cmake-build \
-                 -G "${{ inputs.generator }}"" \
+                 -G "${{ inputs.generator }}" \
                  ${{ inputs.args }}
                  -DJUCE_BUILD_EXAMPLES=ON \
                  -DJUCE_BUILD_EXTRAS=ON
