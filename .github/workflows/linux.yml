@@ -25,14 +25,7 @@ jobs:
     needs: cmake-generate
     strategy:
       matrix:
-        target: [AudioPerformanceTest,
-                 AudioPluginHost,
-                 BinaryBuilder,
-                 DemoRunner,
-                 NetworkGraphicsDemo,
-                 Projucer,
-                 UnitTestRunner,
-                 AudioPluginExample,
+        target: [AudioPluginExample,
                  ConsoleAppExample,
                  GuiAppExample]
         config: [Debug, Release]

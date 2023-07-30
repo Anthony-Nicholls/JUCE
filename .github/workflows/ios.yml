@@ -23,7 +23,7 @@ jobs:
     needs: cmake-generate
     strategy:
       matrix:
-        target: [GuiAppExample]
+        target: [DemoRunner]
         config: [Release]
     name: ${{ matrix.target }} (CMake)
     runs-on: macos-latest
