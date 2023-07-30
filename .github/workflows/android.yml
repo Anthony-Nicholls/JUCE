@@ -6,38 +6,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  cmake-generate:
-    name: Generate CMake
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Generate CMake
-        uses: ./.github/actions/cmake-generate
-        with:
-          generator: Ninja
-
-  cmake-builds:
-    needs: cmake-generate
-    strategy:
-      matrix:
-        target: [AudioPerformanceTest,
-                 AudioPluginHost,
-                 DemoRunner,
-                 NetworkGraphicsDemo,
-                 GuiAppExample]
-    name: ${{ matrix.target }} (CMake)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/cmake-build
-        with:
-          target: ${{ matrix.target }}
-
   projucer-builds:
     strategy:
       matrix:
