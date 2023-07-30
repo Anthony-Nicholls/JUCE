@@ -36,7 +36,7 @@ jobs:
         with:
           config: ${{ matrix.config }}
           target: ${{ matrix.target }}
-          args: -sdk iphonesimulator
+          args: -- -sdk iphonesimulator
 
   projucer-builds:
     strategy:
