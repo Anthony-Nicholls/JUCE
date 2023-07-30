@@ -19,7 +19,7 @@ jobs:
       - name: Generate CMake
         uses: ./.github/actions/generate-cmake
         with:
-          generator: Ninja
+          generator: Ninja Multi-Config
 
   cmake-builds:
     needs: cmake-generate
@@ -35,6 +35,7 @@ jobs:
                  AudioPluginExample,
                  ConsoleAppExample,
                  GuiAppExample]
+        config: [Debug, Release]
     name: ${{ matrix.target }} (CMake)
     runs-on: ubuntu-latest
     steps:
@@ -47,6 +48,7 @@ jobs:
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
+          config: ${{ matrix.config }}
           target: ${{ matrix.target }}
 
   projucer-builds:

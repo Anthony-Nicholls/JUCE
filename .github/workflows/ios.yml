@@ -24,6 +24,7 @@ jobs:
     strategy:
       matrix:
         target: [GuiAppExample]
+        config: [Release]
     name: ${{ matrix.target }} (CMake)
     runs-on: macos-latest
     steps:
@@ -33,6 +34,7 @@ jobs:
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
+          config: ${{ matrix.config }}
           target: ${{ matrix.target }}
           args: -sdk iphonesimulator
 

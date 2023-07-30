@@ -13,9 +13,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-
       - name: Generate CMake
         uses: ./.github/actions/generate-cmake
         with:
@@ -35,6 +32,7 @@ jobs:
                  AudioPluginExample,
                  ConsoleAppExample,
                  GuiAppExample]
+        config: [Debug, Release]
     name: ${{ matrix.target }} (CMake)
     runs-on: windows-latest
     steps:
@@ -47,6 +45,7 @@ jobs:
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
+          config: ${{ matrix.config }}
           target: ${{ matrix.target }}
 
   projucer-builds:
