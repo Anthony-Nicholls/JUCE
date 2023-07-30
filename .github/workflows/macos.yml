@@ -25,7 +25,7 @@ jobs:
         target: [AudioPluginExample,
                  ConsoleAppExample,
                  GuiAppExample]
-        config: [Debug, Release]
+        config: [Release]
     name: ${{ matrix.target }} (CMake)
     runs-on: macos-latest
     steps:
