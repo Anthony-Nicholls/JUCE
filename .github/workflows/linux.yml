@@ -22,11 +22,15 @@ jobs:
       - name: Install dependencies
         uses: ./.github/actions/install-linux-dependencies
 
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+
       - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/build-cmake
+        uses: ashutoshvarma/action-cmake-build@master
         with:
-          generator: Ninja Multi-Config
-          config: ${{ matrix.config }}
+          build-dir: ./cmake-build
+          configure-options: -G Visual Studio 17 2022
+          build-type: ${{ matrix.config }}
           target: ${{ matrix.target }}
 
   projucer-builds:

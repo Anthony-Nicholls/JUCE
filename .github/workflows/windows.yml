@@ -13,7 +13,7 @@ jobs:
                  ConsoleAppExample,
                  GuiAppExample]
         config: [Debug, Release]
-    name: ${{ matrix.target }} (CMake)
+    name: ${{ matrix.target }} (CMake - ${{ matrix.config }})
     runs-on: windows-latest
     steps:
       - name: Checkout repository
@@ -23,10 +23,11 @@ jobs:
         uses: microsoft/setup-msbuild@v1.1
 
       - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/build-cmake
+        uses: ashutoshvarma/action-cmake-build@master
         with:
-          generator: Visual Studio 17 2022
-          config: ${{ matrix.config }}
+          build-dir: ./cmake-build
+          configure-options: -G Ninja
+          build-type: ${{ matrix.config }}
           target: ${{ matrix.target }}
 
   projucer-builds:
