@@ -1,4 +1,4 @@
-name: Build CMake
+name: Build CMake Target
 inputs:
   build-dir:
     required: true
@@ -13,7 +13,7 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: Generate Projects
+  - name: Configure CMake
     shell: bash
     run: |
       cmake . -B "${{ inputs.build-dir }}" \
@@ -21,7 +21,7 @@ runs:
               -DCMAKE_CONFIGURATION_TYPES=${{ inputs.config }} \
               ${{ inputs.configure-args }}
 
-  - name: Build Projects
+  - name: Build ${{ inputs.target }}
     shell: bash
     run: |
       cmake --build "${{ inputs.build-dir }}" \
