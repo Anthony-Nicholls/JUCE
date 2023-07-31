@@ -65,4 +65,4 @@ jobs:
 
       - if: matrix.project.name == 'UnitTestRunner'
         name: Run UnitTestRunner
-        run: ${{ env.PROJECT_PATH }}/build/${{ matrix.config }}/UnitTestRunner
+        run: ${{ env.PROJECT_PATH }}/build/UnitTestRunner
