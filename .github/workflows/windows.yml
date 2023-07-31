@@ -58,3 +58,7 @@ jobs:
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
         run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=${{ matrix.config }} /warnaserror /maxcpucount
+
+      - if: matrix.project.name == 'UnitTestRunner'
+        name: Run UnitTestRunner
+        run: ${{ env.PROJECT_PATH }}/x64/${{ matrix.config }}/ConsoleApp/UnitTestRunner.exe

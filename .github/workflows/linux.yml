@@ -62,3 +62,7 @@ jobs:
       - name: Build project
         working-directory: ${{ env.PROJECT_PATH }}
         run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror" CXX="${{ matrix.compiler }}"
+
+      - if: matrix.project.name == 'UnitTestRunner'
+        name: Run UnitTestRunner
+        run: ${{ env.PROJECT_PATH }}/build/${{ matrix.config }}/UnitTestRunner
