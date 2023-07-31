@@ -18,6 +18,7 @@ runs:
     run: |
       cmake . -B "${{ inputs.build-dir }}" \
               -G "${{ inputs.generator }}" \
+              -DCMAKE_CONFIGURATION_TYPES=${{ inputs.config }} \
               ${{ inputs.configure-args }}
 
   - name: Build Projects
