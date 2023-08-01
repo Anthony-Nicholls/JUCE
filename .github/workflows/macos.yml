@@ -46,10 +46,11 @@ jobs:
 
       - name: Build ${{ matrix.project.name }}
         uses: ./.github/actions/build-macos
+        id: build
         with:
           project-dir: ./${{ matrix.project.dir }}/${{ matrix.project.name }}
           config: ${{ matrix.config }}
 
       - if: matrix.project.name == 'UnitTestRunner'
         name: Run UnitTestRunner
-        run: ${{ env.PROJECT_PATH }}/build/${{ matrix.config }}/UnitTestRunner
+        run: ${{ steps.build.outputs.build-dir }}/UnitTestRunner

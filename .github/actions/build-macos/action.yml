@@ -6,7 +6,7 @@ inputs:
     required: true
 outputs:
   build-dir:
-    value: ${{ steps.generate.outputs.build-dir }}
+    value: ${{ inputs.project-dir }}/Builds/MacOSX/build/${{ inputs.config }}
 runs:
   using: composite
   steps:
@@ -16,8 +16,3 @@ runs:
     run: |
       xcodebuild -configuration ${{ inputs.config }} \
                  GCC_TREAT_WARNINGS_AS_ERRORS=YES
-
-  - name: Generate outputs
-    id: generate
-    shell: bash
-    run: echo "build-dir=${{ inputs.project-dir }}/Builds/MacOSX/build/${{ inputs.config }}" >> "${GITHUB_OUTPUT}"

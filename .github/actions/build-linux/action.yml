@@ -8,7 +8,7 @@ inputs:
     required: true
 outputs:
   build-dir:
-    value: ${{ steps.generate.outputs.build-dir }}
+    value: ${{ inputs.project-dir }}/Builds/LinuxMakefile/build
 runs:
   using: composite
   steps:
@@ -19,8 +19,3 @@ runs:
     shell: bash
     working-directory: ${{ inputs.project-dir }}/Builds/LinuxMakefile
     run: make -j$(nproc) CONFIG=${{ inputs.config }} V=1 CXXFLAGS="-Werror" CXX="${{ inputs.compiler }}"
-
-  - name: Generate outputs
-    id: generate
-    shell: bash
-    run: echo "build-dir=${{ inputs.project-dir }}/Builds/LinuxMakefile/build" >> "${GITHUB_OUTPUT}"
