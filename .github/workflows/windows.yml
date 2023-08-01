@@ -19,9 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
@@ -46,19 +43,18 @@ jobs:
         config: [Debug, Release]
     name: ${{ matrix.project.name }} (${{ matrix.config }})
     runs-on: windows-latest
-    env:
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/VisualStudio2022
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.1
-
-      - name: Build project
-        working-directory: ${{ env.PROJECT_PATH }}
-        run: msbuild ${{ matrix.project.name }}.sln /t:Build /p:Configuration=${{ matrix.config }} /warnaserror /maxcpucount
+      - name: Build ${{ matrix.project.name }}
+        uses: ./.github/actions/build-windows
+        id: build
+        with:
+          project-dir: ./${{ matrix.project.dir }}/${{ matrix.project.name }}
+          project-name: ${{ matrix.project.name }}
+          config: ${{ matrix.config }}
 
       - if: matrix.project.name == 'UnitTestRunner'
         name: Run UnitTestRunner
-        run: ${{ env.PROJECT_PATH }}/x64/${{ matrix.config }}/ConsoleApp/UnitTestRunner.exe
+        run: ${{ steps.build.outputs.build-dir }}/ConsoleApp/UnitTestRunner.exe

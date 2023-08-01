@@ -1,0 +1,16 @@
+name: Build iOS Project
+inputs:
+  project-dir:
+    required: true
+  config:
+    required: true
+runs:
+  using: composite
+  steps:
+  - name: Build project
+    shell: bash
+    working-directory: ./${{ inputs.project-dir }}/Builds/iOS
+    run: |
+      xcodebuild -configuration ${{ inputs.config }} \
+                 -sdk iphonesimulator \
+                 GCC_TREAT_WARNINGS_AS_ERRORS=YES

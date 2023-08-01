@@ -19,12 +19,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        uses: ./.github/actions/install-linux-dependencies
-
-      - name: Setup Ninja
-        uses: ashutoshvarma/setup-ninja@master
-
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
@@ -50,19 +44,18 @@ jobs:
         compiler: [g++, clang++]
     name: ${{ matrix.project.name }} (${{ matrix.compiler }} ${{ matrix.config }})
     runs-on: ubuntu-latest
-    env:
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/LinuxMakefile
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Install dependencies
-        uses: ./.github/actions/install-linux-dependencies
-
-      - name: Build project
-        working-directory: ${{ env.PROJECT_PATH }}
-        run: make -j$(nproc) CONFIG=${{ matrix.config }} V=1 CXXFLAGS="-Werror" CXX="${{ matrix.compiler }}"
+      - name: Build ${{ matrix.project.name }}
+        uses: ./.github/actions/build-linux
+        id: build
+        with:
+          project-dir: ./${{ matrix.project.dir }}/${{ matrix.project.name }}
+          config: ${{ matrix.config }}
+          compiler: ${{ matrix.compiler }}
 
       - if: matrix.project.name == 'UnitTestRunner'
         name: Run UnitTestRunner
-        run: ${{ env.PROJECT_PATH }}/build/UnitTestRunner
+        run: ${{ steps.build.outputs.build-dir }}/UnitTestRunner

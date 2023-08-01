@@ -1,0 +1,28 @@
+name: Build LinuxMakefile
+inputs:
+  project-dir:
+    required: true
+  project-name:
+    required: true
+  exporter:
+    default: VisualStudio2022
+  config:
+    required:
+outputs:
+  build-dir:
+    value: ${{ steps.generate.outputs.build-dir }}
+runs:
+  using: composite
+  steps:
+  - name: Add msbuild to PATH
+    uses: microsoft/setup-msbuild@v1.1
+
+  - name: Build project
+    shell: pwsh
+    working-directory: ${{ inputs.project-dir }}/Builds/${{ inputs.exporter }}
+    run: msbuild ${{ inputs.project-name }}.sln /t:Build /p:Configuration=${{ inputs.config }} /warnaserror /maxcpucount
+
+  - name: Generate outputs
+    id: generate
+    shell: bash
+    run: echo "build-dir=${{ inputs.project-dir }}/Builds/${{ inputs.exporter }}/x64/${{ matrix.config }}" >> "${GITHUB_OUTPUT}"

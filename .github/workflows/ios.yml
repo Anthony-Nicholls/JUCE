@@ -16,15 +16,12 @@ jobs:
         config: [Release]
     name: ${{ matrix.project.name }} (${{ matrix.config }})
     runs-on: macos-latest
-    env:
-      PROJECT_PATH: ./${{ matrix.project.dir }}/${{ matrix.project.name }}/Builds/iOS
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Build project
-        working-directory: ${{ env.PROJECT_PATH }}
-        run: |
-          xcodebuild -configuration ${{ matrix.config }} \
-                     -sdk iphonesimulator \
-                     GCC_TREAT_WARNINGS_AS_ERRORS=YES
+      - name: Build ${{ matrix.project.name }}
+        uses: ./.github/actions/build-ios
+        with:
+          project-dir: ./${{ matrix.project.dir }}/${{ matrix.project.name }}
+          config: ${{ matrix.config }}
