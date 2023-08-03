@@ -1,5 +1,8 @@
 name: Android builds
-on: push
+on:
+  push:
+  schedule:
+    - cron: '0 * * * *'
 
 concurrency:
   group: android-${{ github.ref }}

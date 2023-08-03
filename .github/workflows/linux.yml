@@ -1,5 +1,8 @@
 name: Linux builds
-on: push
+on:
+  push:
+  schedule:
+    - cron: '0 * * * *'
 
 concurrency:
   group: linux-${{ github.ref }}
