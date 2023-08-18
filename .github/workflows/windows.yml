@@ -23,15 +23,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Add llvm to path
-        shell: bash
-        run: echo "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\Llvm" >> $GITHUB_PATH
-
-      - name: Build CMake target ${{ matrix.target }}
-        uses: ./.github/actions/build-cmake
-        with:
-          build-dir: ./cmake-build
-          generator: Ninja Multi-Config
-          config: ${{ matrix.config }}
-          target: ${{ matrix.target }}
-          configure-args: -DJUCE_BUILD_EXAMPLES=ON -DCMAKE_CXX_CLANG_TIDY=clang-tidy;-checks=modernize-*
+      - name: Build
+        shell: cmd
+        run: |
+          PATH=%PATH%;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\Llvm\bin
+          cmake . -Bbuild -Werror=dev "-GNinja" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_CXX_FLAGS=-Wno-everything -fuse-ld=lld-link.exe" "-DJUCE_BUILD_EXAMPLES=ON" "-DCMAKE_CXX_CLANG_TIDY=clang-tidy;-checks=modernize-*"
+          cmake --build build --parallel 1 --config Debug --target ${{ matrix.target }}
