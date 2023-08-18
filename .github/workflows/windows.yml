@@ -23,6 +23,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Add llvm to path
+        shell: bash
+        run: echo "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\Llvm" >> $GITHUB_PATH
+
       - name: Build CMake target ${{ matrix.target }}
         uses: ./.github/actions/build-cmake
         with:
