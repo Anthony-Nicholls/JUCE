@@ -26,6 +26,6 @@ jobs:
       - name: Build
         shell: cmd
         run: |
-          PATH=%PATH%;C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\Llvm\bin
+          PATH=C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\Llvm\bin;%PATH%
           cmake . -Bbuild -Werror=dev "-GNinja" -DCMAKE_BUILD_TYPE=Debug "-DCMAKE_CXX_FLAGS=-Wno-everything -fuse-ld=lld-link.exe" "-DJUCE_BUILD_EXAMPLES=ON" "-DCMAKE_CXX_CLANG_TIDY=clang-tidy;-checks=modernize-*"
           cmake --build build --parallel 1 --config Debug --target ${{ matrix.target }}
