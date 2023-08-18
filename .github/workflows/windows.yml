@@ -14,7 +14,8 @@ jobs:
       matrix:
         target: [AudioPluginExample,
                  ConsoleAppExample,
-                 GuiAppExample]
+                 GuiAppExample,
+                 DemoRunner]
         config: [Debug, Release]
     name: ${{ matrix.target }} (CMake - ${{ matrix.config }})
     runs-on: windows-latest
@@ -26,38 +27,7 @@ jobs:
         uses: ./.github/actions/build-cmake
         with:
           build-dir: ./cmake-build
-          generator: Visual Studio 17 2022
+          generator: Ninja Multi-Config
           config: ${{ matrix.config }}
           target: ${{ matrix.target }}
-          configure-args: -DJUCE_BUILD_EXAMPLES=ON
-
-  projucer-builds:
-    strategy:
-      matrix:
-        project: [
-          {dir: examples, name: DemoRunner},
-          {dir: extras, name: AudioPerformanceTest},
-          {dir: extras, name: AudioPluginHost},
-          {dir: extras, name: BinaryBuilder},
-          {dir: extras, name: NetworkGraphicsDemo},
-          {dir: extras, name: Projucer},
-          {dir: extras, name: UnitTestRunner},
-        ]
-        config: [Debug, Release]
-    name: ${{ matrix.project.name }} (${{ matrix.config }})
-    runs-on: windows-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Build ${{ matrix.project.name }}
-        uses: ./.github/actions/build-windows
-        id: build
-        with:
-          project-dir: ./${{ matrix.project.dir }}/${{ matrix.project.name }}
-          project-name: ${{ matrix.project.name }}
-          config: ${{ matrix.config }}
-
-      - if: matrix.project.name == 'UnitTestRunner'
-        name: Run UnitTestRunner
-        run: ${{ steps.build.outputs.build-dir }}/ConsoleApp/UnitTestRunner.exe
+          configure-args: -DJUCE_BUILD_EXAMPLES=ON -DCMAKE_CXX_CLANG_TIDY=clang-tidy;-checks=modernize-*
