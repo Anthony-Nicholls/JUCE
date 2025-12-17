@@ -233,11 +233,11 @@ private:
     //==============================================================================
     struct ColourPoint
     {
-        auto tie() const { return std::tuple (position, colour.getPixelARGB().getNativeARGB()); }
+        auto tie() const;
 
-        bool operator== (ColourPoint other) const noexcept { return tie() == other.tie(); }
-        bool operator!= (ColourPoint other) const noexcept { return tie() != other.tie(); }
-        bool operator<  (ColourPoint other) const noexcept { return tie() <  other.tie(); }
+        bool operator== (ColourPoint other) const noexcept;
+        bool operator!= (ColourPoint other) const noexcept;
+        bool operator<  (ColourPoint other) const noexcept;
 
         double position;
         Colour colour;
