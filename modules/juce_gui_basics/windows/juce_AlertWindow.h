@@ -1,24 +1,33 @@
 /*
   ==============================================================================
 
-   This file is part of the JUCE library.
-   Copyright (c) 2022 - Raw Material Software Limited
+   This file is part of the JUCE framework.
+   Copyright (c) Raw Material Software Limited
 
-   JUCE is an open source library subject to commercial or open-source
+   JUCE is an open source framework subject to commercial or open source
    licensing.
 
-   By using JUCE, you agree to the terms of both the JUCE 7 End-User License
-   Agreement and JUCE Privacy Policy.
+   By downloading, installing, or using the JUCE framework, or combining the
+   JUCE framework with any other source code, object code, content or any other
+   copyrightable work, you agree to the terms of the JUCE End User Licence
+   Agreement, and all incorporated terms including the JUCE Privacy Policy and
+   the JUCE Website Terms of Service, as applicable, which will bind you. If you
+   do not agree to the terms of these agreements, we will not license the JUCE
+   framework to you, and you must discontinue the installation or download
+   process and cease use of the JUCE framework.
 
-   End User License Agreement: www.juce.com/juce-7-licence
-   Privacy Policy: www.juce.com/juce-privacy-policy
+   JUCE End User Licence Agreement: https://juce.com/legal/juce-8-licence/
+   JUCE Privacy Policy: https://juce.com/juce-privacy-policy
+   JUCE Website Terms of Service: https://juce.com/juce-website-terms-of-service/
 
-   Or: You may also use this code under the terms of the GPL v3 (see
-   www.gnu.org/licenses).
+   Or:
 
-   JUCE IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL WARRANTIES, WHETHER
-   EXPRESSED OR IMPLIED, INCLUDING MERCHANTABILITY AND FITNESS FOR PURPOSE, ARE
-   DISCLAIMED.
+   You may also use this code under the terms of the AGPLv3:
+   https://www.gnu.org/licenses/agpl-3.0.en.html
+
+   THE JUCE FRAMEWORK IS PROVIDED "AS IS" WITHOUT ANY WARRANTY, AND ALL
+   WARRANTIES, WHETHER EXPRESSED OR IMPLIED, INCLUDING WARRANTY OF
+   MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, ARE DISCLAIMED.
 
   ==============================================================================
 */
@@ -33,11 +42,11 @@ namespace juce
     some static methods for running these.
 
     For more complex dialogs, an AlertWindow can be created, then it can have some
-    buttons and components added to it, and its runModalLoop() method is then used to
-    show it. The value returned by runModalLoop() shows which button the
-    user pressed to dismiss the box.
+    buttons and components added to it, and its enterModalState() method is used to
+    show it. The value returned to the ModalComponentManager::Callback shows
+    which button the user pressed to dismiss the box.
 
-    @see ThreadWithProgressWindow
+    @see ThreadWithProgressWindow, Component::enterModalState
 
     @tags{GUI}
 */
@@ -188,8 +197,13 @@ public:
         @param progressValue    a variable that will be repeatedly checked while the
                                 dialog box is visible, to see how far the process has
                                 got. The value should be in the range 0 to 1.0
+        @param style            determines the style the ProgressBar should adopt.
+                                By default this use a style automatically chosen by
+                                the LookAndFeel, but you can force a particular style
+                                by passing a non-optional value.
+        @see ProgressBar::setStyle
     */
-    void addProgressBarComponent (double& progressValue);
+    void addProgressBarComponent (double& progressValue, std::optional<ProgressBar::Style> style = std::nullopt);
 
     //==============================================================================
     /** Adds a user-defined component to the dialog box.
@@ -467,7 +481,8 @@ public:
                                                            std::function<void (int)> callback);
 
     //==============================================================================
-   #if JUCE_MODAL_LOOPS_PERMITTED && ! defined (DOXYGEN)
+   #if JUCE_MODAL_LOOPS_PERMITTED
+    /** @cond */
     /** Shows an operating-system native dialog box.
 
         @param title        the title to use at the top
@@ -480,6 +495,7 @@ public:
     static bool JUCE_CALLTYPE showNativeDialogBox (const String& title,
                                                    const String& bodyText,
                                                    bool isOkCancel);
+    /** @endcond */
    #endif
 
 
@@ -573,7 +589,7 @@ private:
     OwnedArray<Component> textBlocks;
     Array<Component*> allComps;
     StringArray textboxNames, comboBoxNames;
-    Component* const associatedComponent;
+    SafePointer<Component> associatedComponent;
     bool escapeKeyCancels = true;
     float desktopScale = 1.0f;
 
