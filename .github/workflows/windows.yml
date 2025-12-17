@@ -1,5 +1,6 @@
 name: Windows builds
 on:
+  workflow_dispatch:
   push:
   schedule:
     - cron: '0 * * * *'
