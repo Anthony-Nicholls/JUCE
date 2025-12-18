@@ -502,26 +502,6 @@ bool SubscriptionManager::sendPendingMessages()
     return pimpl->sendPendingMessages();
 }
 
-auto SubscriptionKey::tie() const
-{
-    return std::tie (m, v);
-}
-
-bool SubscriptionKey::operator== (const SubscriptionKey& other) const
-{
-    return tie() == other.tie();
-}
-
-bool SubscriptionKey::operator!= (const SubscriptionKey& other) const
-{
-    return tie() != other.tie();
-}
-
-bool SubscriptionKey::operator<  (const SubscriptionKey& other) const
-{
-    return tie() < other.tie();
-}
-
 //==============================================================================
 //==============================================================================
 #if JUCE_UNIT_TESTS

@@ -22,7 +22,6 @@
 juce_add_gui_app(DemoRunner
     BUNDLE_ID                       com.juce.demorunner
     ICON_BIG                        ${CMAKE_CURRENT_SOURCE_DIR}/Source/JUCEAppIcon.png
-    ICON_COMPOSER_BUNDLE            "${CMAKE_CURRENT_SOURCE_DIR}/Source/AppIcon.icon"
     NEEDS_CURL                      TRUE
     NEEDS_WEB_BROWSER               TRUE
     MICROPHONE_PERMISSION_ENABLED   TRUE

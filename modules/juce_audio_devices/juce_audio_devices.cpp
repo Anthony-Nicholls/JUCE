@@ -61,7 +61,6 @@
 #include "midi_io/juce_WaitFreeListeners.cpp"
 #include "midi_io/juce_MidiDeviceListConnectionBroadcaster.cpp"
 
-#include "midi_io/ump/juce_UMPBlock.cpp"
 #include "midi_io/ump/juce_UMPIOHelpers.cpp"
 #include "midi_io/ump/juce_UMPInput.cpp"
 #include "midi_io/ump/juce_UMPOutput.cpp"

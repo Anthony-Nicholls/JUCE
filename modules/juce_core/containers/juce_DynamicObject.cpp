@@ -151,11 +151,6 @@ void DynamicObject::writeAsJSON (OutputStream& out, const JSON::FormatOptions& f
     out << '}';
 }
 
-bool DynamicObject::equals (const DynamicObject& other) const
-{
-    return properties == other.properties;
-}
-
 //==============================================================================
 //==============================================================================
 

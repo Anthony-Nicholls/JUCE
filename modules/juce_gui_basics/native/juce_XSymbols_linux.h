@@ -346,10 +346,6 @@ public:
                                          (::Display*, XEvent*),
                                          int)
 
-    JUCE_GENERATE_FUNCTION_WITH_DEFAULT (XNextRequest, xNextRequest,
-                                         (::Display*),
-                                         unsigned long)
-
     JUCE_GENERATE_FUNCTION_WITH_DEFAULT (XOpenDisplay, xOpenDisplay,
                                          (const char*),
                                          ::Display*)

@@ -69,7 +69,6 @@ namespace juce::build_tools
         String localNetworkPermissionText;
 
         File iconFile;
-        File iconComposerIcon;
         String projectName;
         String marketingVersion;
         String currentProjectVersion;

@@ -291,24 +291,4 @@ bool ColourGradient::isInvisible() const noexcept
     return true;
 }
 
-auto ColourGradient::ColourPoint::tie() const
-{
-    return std::tuple (position, colour.getPixelARGB().getNativeARGB());
-}
-
-bool ColourGradient::ColourPoint::operator== (ColourPoint other) const noexcept
-{
-    return tie() == other.tie();
-}
-
-bool ColourGradient::ColourPoint::operator!= (ColourPoint other) const noexcept
-{
-    return tie() != other.tie();
-}
-
-bool ColourGradient::ColourPoint::operator<  (ColourPoint other) const noexcept
-{
-    return tie() <  other.tie();
-}
-
 } // namespace juce

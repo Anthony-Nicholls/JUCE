@@ -107,7 +107,7 @@ private:
 */
 class JUCE_API FontFeatureSetting final
 {
-    constexpr auto tie() const;
+    constexpr auto tie() const { return std::tuple (tag, value); }
 
 public:
     /** Common feature values for convenience. */
@@ -123,12 +123,12 @@ public:
     {
     }
 
-    [[nodiscard]] constexpr bool operator<  (const FontFeatureSetting& other) const;
-    [[nodiscard]] constexpr bool operator<= (const FontFeatureSetting& other) const;
-    [[nodiscard]] constexpr bool operator>  (const FontFeatureSetting& other) const;
-    [[nodiscard]] constexpr bool operator>= (const FontFeatureSetting& other) const;
-    [[nodiscard]] constexpr bool operator== (const FontFeatureSetting& other) const;
-    [[nodiscard]] constexpr bool operator!= (const FontFeatureSetting& other) const;
+    [[nodiscard]] constexpr bool operator<  (const FontFeatureSetting& other) const { return tie() <  other.tie(); }
+    [[nodiscard]] constexpr bool operator<= (const FontFeatureSetting& other) const { return tie() <= other.tie(); }
+    [[nodiscard]] constexpr bool operator>  (const FontFeatureSetting& other) const { return tie() >  other.tie(); }
+    [[nodiscard]] constexpr bool operator>= (const FontFeatureSetting& other) const { return tie() >= other.tie(); }
+    [[nodiscard]] constexpr bool operator== (const FontFeatureSetting& other) const { return tie() == other.tie(); }
+    [[nodiscard]] constexpr bool operator!= (const FontFeatureSetting& other) const { return tie() != other.tie(); }
 
     /** The OpenType feature tag. */
     FontFeatureTag tag;

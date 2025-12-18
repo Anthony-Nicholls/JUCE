@@ -61,7 +61,6 @@ namespace juce::build_tools
 
     RelativePath createXcassetsFolderFromIcons (const Icons& icons,
                                                 const File& targetFolder,
-                                                String projectFilenameRootString,
-                                                String iconName);
+                                                String projectFilenameRootString);
 
 } // namespace juce::build_tools

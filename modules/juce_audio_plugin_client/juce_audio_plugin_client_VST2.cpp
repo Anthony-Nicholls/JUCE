@@ -111,7 +111,6 @@ JUCE_END_IGNORE_WARNINGS_GCC_LIKE
 #define JUCE_GUI_BASICS_INCLUDE_XHEADERS 1
 
 #include <juce_audio_plugin_client/detail/juce_PluginUtilities.h>
-#include <juce_audio_plugin_client/detail/juce_PluginScaleFactorUtilities.h>
 
 using namespace juce;
 
@@ -131,6 +130,13 @@ using namespace juce;
 
 class JuceVSTWrapper;
 static bool recursionCheck = false;
+
+namespace juce
+{
+ #if JUCE_WINDOWS && JUCE_WIN_PER_MONITOR_DPI_AWARE
+  JUCE_API double getScaleFactorForWindow (HWND);
+ #endif
+}
 
 //==============================================================================
 #if JUCE_WINDOWS
@@ -342,7 +348,7 @@ public:
        #if JucePlugin_IsSynth
         vstEffect.flags |= Vst2::effFlagsIsSynth;
        #else
-        if (approximatelyEqual (processor->getTailLengthSeconds(), 0.0))
+        if (processor->getTailLengthSeconds() == 0.0)
             vstEffect.flags |= Vst2::effFlagsNoSoundInStop;
        #endif
 
@@ -817,7 +823,7 @@ public:
             if (auto* ed = processor->createEditorIfNeeded())
             {
                 setHasEditorFlag (true);
-                editorComp.reset (new EditorCompWrapper (*this, *ed));
+                editorComp.reset (new EditorCompWrapper (*this, *ed, editorScaleFactor));
             }
             else
             {
@@ -922,13 +928,18 @@ public:
     //==============================================================================
     // A component to hold the AudioProcessorEditor, and cope with some housekeeping
     // chores when it changes or repaints.
-    struct EditorCompWrapper final : public Component,
-                                     private detail::PluginScaleFactorManagerListener
+    struct EditorCompWrapper final : public Component
+                             #if JUCE_WINDOWS && JUCE_WIN_PER_MONITOR_DPI_AWARE
+                              , public Timer
+                             #endif
     {
-        EditorCompWrapper (JuceVSTWrapper& w, AudioProcessorEditor& editor)
+        EditorCompWrapper (JuceVSTWrapper& w, AudioProcessorEditor& editor, [[maybe_unused]] float initialScale)
             : wrapper (w)
         {
             editor.setOpaque (true);
+           #if ! JUCE_MAC
+            editor.setScaleFactor (initialScale);
+           #endif
             addAndMakeVisible (editor);
 
             auto editorBounds = getSizeToContainChild();
@@ -940,15 +951,10 @@ public:
            #endif
 
             setOpaque (true);
-
-            wrapper.scaleManager.addListener (*this);
-            wrapper.scaleManager.startObserving (*this);
         }
 
         ~EditorCompWrapper() override
         {
-            wrapper.scaleManager.stopObserving (*this);
-            wrapper.scaleManager.removeListener (*this);
             deleteAllChildren(); // note that we can't use a std::unique_ptr because the editor may
                                  // have been transferred to another parent which takes over ownership.
         }
@@ -960,8 +966,8 @@ public:
 
         void getEditorBounds (Vst2::ERect& bounds)
         {
-            auto editorBounds = getSizeToContainChild().toFloat().withZeroOrigin();
-            bounds = createViewRect (wrapper.scaleManager.convertToHostBounds (editorBounds));
+            auto editorBounds = getSizeToContainChild();
+            bounds = convertToHostBounds ({ 0, 0, (int16) editorBounds.getHeight(), (int16) editorBounds.getWidth() });
         }
 
         void attachToHost (VstOpCodeArguments args)
@@ -983,6 +989,9 @@ public:
              // and we need to ensure that the X server knows that our window has been attached
              // before that happens.
              X11Symbols::getInstance()->xFlush (display);
+            #elif JUCE_WINDOWS && JUCE_WIN_PER_MONITOR_DPI_AWARE
+             checkHostWindowScaleFactor (true);
+             startTimer (500);
             #endif
            #elif JUCE_MAC
             hostWindow = detail::VSTWindowUtilities::attachComponentToWindowRefVST (this, desktopFlags, args.ptr);
@@ -1004,6 +1013,26 @@ public:
         AudioProcessorEditor* getEditorComp() const noexcept
         {
             return dynamic_cast<AudioProcessorEditor*> (getChildComponent (0));
+        }
+
+        void resized() override
+        {
+            if (auto* pluginEditor = getEditorComp())
+            {
+                if (! resizingParent)
+                {
+                    auto newBounds = getLocalBounds();
+
+                    {
+                        const ScopedValueSetter<bool> resizingChildSetter (resizingChild, true);
+                        pluginEditor->setBounds (pluginEditor->getLocalArea (this, newBounds).withPosition (0, 0));
+                    }
+
+                    lastBounds = newBounds;
+                }
+
+                updateWindowSize();
+            }
         }
 
         void parentSizeChanged() override
@@ -1034,14 +1063,9 @@ public:
             return {};
         }
 
-        static Vst2::ERect createViewRect (juce::Rectangle<int> r)
-        {
-            return { (int16) r.getY(), (int16) r.getX(), (int16) r.getBottom(), (int16) r.getRight() };
-        }
-
         void resizeHostWindow (juce::Rectangle<int> bounds)
         {
-            auto rect = createViewRect (wrapper.scaleManager.convertToHostBounds (bounds.toFloat()));
+            auto rect = convertToHostBounds ({ 0, 0, (int16) bounds.getHeight(), (int16) bounds.getWidth() });
             const auto newWidth = rect.right - rect.left;
             const auto newHeight = rect.bottom - rect.top;
 
@@ -1123,6 +1147,24 @@ public:
            #endif
         }
 
+        void setContentScaleFactor (float scale)
+        {
+            if (auto* pluginEditor = getEditorComp())
+            {
+                auto prevEditorBounds = pluginEditor->getLocalArea (this, lastBounds);
+
+                {
+                    const ScopedValueSetter<bool> resizingChildSetter (resizingChild, true);
+
+                    pluginEditor->setScaleFactor (scale);
+                    pluginEditor->setBounds (prevEditorBounds.withPosition (0, 0));
+                }
+
+                lastBounds = getSizeToContainChild();
+                updateWindowSize();
+            }
+        }
+
        #if JUCE_WINDOWS
         void mouseDown (const MouseEvent&) override
         {
@@ -1137,14 +1179,24 @@ public:
                 if (HWND parent = findMDIParentOf ((HWND) getWindowHandle()))
                     SetWindowPos (parent, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
         }
+
+        #if JUCE_WIN_PER_MONITOR_DPI_AWARE
+         void checkHostWindowScaleFactor (bool force = false)
+         {
+             auto hostWindowScale = (float) getScaleFactorForWindow ((HostWindowType) hostWindow);
+
+             if (force || (hostWindowScale > 0.0f && ! approximatelyEqual (hostWindowScale, wrapper.editorScaleFactor)))
+                 wrapper.handleSetContentScaleFactor (hostWindowScale, force);
+         }
+
+         void timerCallback() override
+         {
+             checkHostWindowScaleFactor();
+         }
+        #endif
        #endif
 
     private:
-        void peerBoundsDidUpdate() override
-        {
-            updateWindowSize();
-        }
-
         void updateWindowSize()
         {
             if (! resizingParent
@@ -1171,6 +1223,20 @@ public:
                 resizeHostWindow (editorBounds); // (doing this a second time seems to be necessary in tracktion)
                #endif
             }
+        }
+
+        //==============================================================================
+        static Vst2::ERect convertToHostBounds (const Vst2::ERect& rect)
+        {
+            auto desktopScale = Desktop::getInstance().getGlobalScaleFactor();
+
+            if (approximatelyEqual (desktopScale, 1.0f))
+                return rect;
+
+            return { (int16) roundToInt (rect.top    * desktopScale),
+                     (int16) roundToInt (rect.left   * desktopScale),
+                     (int16) roundToInt (rect.bottom * desktopScale),
+                     (int16) roundToInt (rect.right  * desktopScale) };
         }
 
         //==============================================================================
@@ -1922,7 +1988,15 @@ private:
         const MessageManagerLock mmLock;
        #endif
 
-        scaleManager.setHostScale (scale);
+       #if ! JUCE_MAC
+        if (force || ! approximatelyEqual (scale, editorScaleFactor))
+        {
+            editorScaleFactor = scale;
+
+            if (editorComp != nullptr)
+                editorComp->setContentScaleFactor (editorScaleFactor);
+        }
+       #endif
 
         return 1;
     }
@@ -2038,7 +2112,7 @@ private:
     CriticalSection stateInformationLock;
     juce::MemoryBlock chunkMemory;
     uint32 chunkMemoryTime = 0;
-    detail::PluginScaleFactorManager scaleManager;
+    float editorScaleFactor = 1.0f;
     std::unique_ptr<EditorCompWrapper> editorComp;
     Vst2::ERect editorRect;
     MidiBuffer midiEvents;

@@ -42,7 +42,7 @@ namespace juce::midi_ci
 */
 class SubscriptionKey
 {
-    auto tie() const;
+    auto tie() const { return std::tuple (m, v); }
 
 public:
     /** Constructor */
@@ -58,13 +58,13 @@ public:
     Token64 getKey() const { return v; }
 
     /** Equality operator. */
-    bool operator== (const SubscriptionKey& other) const;
+    bool operator== (const SubscriptionKey& other) const { return tie() == other.tie(); }
 
     /** Inequality operator. */
-    bool operator!= (const SubscriptionKey& other) const;
+    bool operator!= (const SubscriptionKey& other) const { return tie() != other.tie(); }
 
     /** Less-than operator. */
-    bool operator<  (const SubscriptionKey& other) const;
+    bool operator<  (const SubscriptionKey& other) const { return tie() < other.tie(); }
 
 private:
     MUID m = MUID::getBroadcast();

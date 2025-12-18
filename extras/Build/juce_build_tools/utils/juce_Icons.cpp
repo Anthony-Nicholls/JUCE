@@ -494,12 +494,11 @@ namespace juce::build_tools
 
     RelativePath createXcassetsFolderFromIcons (const Icons& icons,
                                                 const File& targetFolder,
-                                                String projectFilenameRootString,
-                                                String iconName)
+                                                String projectFilenameRootString)
     {
         const auto assets      = targetFolder.getChildFile (projectFilenameRootString)
                                              .getChildFile ("Images.xcassets");
-        const auto iconSet     = assets.getChildFile (iconName + ".appiconset");
+        const auto iconSet     = assets.getChildFile ("AppIcon.appiconset");
         const auto launchImage = assets.getChildFile ("LaunchImage.launchimage");
 
         overwriteFileIfDifferentOrThrow (iconSet.getChildFile ("Contents.json"), getiOSAppIconContents());

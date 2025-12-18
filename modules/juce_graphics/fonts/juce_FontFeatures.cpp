@@ -35,42 +35,6 @@
 namespace juce
 {
 
-constexpr auto FontFeatureSetting::tie() const
-{
-    return std::tuple (tag, value);
-}
-
-constexpr bool FontFeatureSetting::operator< (const FontFeatureSetting& other) const
-{
-    return tie() <  other.tie();
-}
-
-constexpr bool FontFeatureSetting::operator<= (const FontFeatureSetting& other) const
-{
-    return tie() <= other.tie();
-}
-
-constexpr bool FontFeatureSetting::operator> (const FontFeatureSetting& other) const
-{
-    return tie() >  other.tie();
-}
-
-constexpr bool FontFeatureSetting::operator>= (const FontFeatureSetting& other) const
-{
-    return tie() >= other.tie();
-}
-
-constexpr bool FontFeatureSetting::operator== (const FontFeatureSetting& other) const
-{
-    return tie() == other.tie();
-}
-
-constexpr bool FontFeatureSetting::operator!= (const FontFeatureSetting& other) const
-{
-    return tie() != other.tie();
-}
-
-//==============================================================================
 FontFeatureTag FontFeatureTag::fromString (const String& string)
 {
     if (string.getNumBytesAsUTF8() != 4)

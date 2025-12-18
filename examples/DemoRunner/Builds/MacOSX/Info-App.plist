@@ -12,7 +12,7 @@
     <key>CFBundleExecutable</key>
     <string>${EXECUTABLE_NAME}</string>
     <key>CFBundleIconFile</key>
-    <string>AppIcon.icns</string>
+    <string>Icon.icns</string>
     <key>CFBundleIdentifier</key>
     <string>com.rmsl.jucedemorunner</string>
     <key>CFBundleName</key>

@@ -215,8 +215,9 @@ void TopLevelWindow::centreAroundComponent (Component* c, const int width, const
             return std::make_pair (globalTargetCentre, c->getParentMonitorArea() / scale);
         }();
 
-        setBounds (Rectangle { width, height }
-                     .withCentre (targetCentre)
+        setBounds (Rectangle<int> (targetCentre.x - width / 2,
+                                   targetCentre.y - height / 2,
+                                   width, height)
                      .constrainedWithin (parentArea.reduced (12, 12)));
     }
 }
