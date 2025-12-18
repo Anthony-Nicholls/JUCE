@@ -17,10 +17,6 @@ runs:
     name: Install Linux dependencies
     uses: ./.github/actions/install-linux-dependencies
 
-  - if: runner.os == 'Linux'
-    name: Setup Ninja
-    uses: ashutoshvarma/setup-ninja@master
-
   - if: runner.os == 'Windows'
     name: Add msbuild to PATH
     uses: microsoft/setup-msbuild@v1.1
